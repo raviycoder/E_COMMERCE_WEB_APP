@@ -10,7 +10,9 @@ import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import Cart from "./features/cart/Cart";
-import Navbar from "./features/navbar/Navbar";
+// import Navbar from "./features/navbar/Navbar";
+import CheckoutPage from "./pages/CheckoutPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
 function App() {
   return (
@@ -18,10 +20,12 @@ function App() {
       <div className="App">
         <Router>
           <Routes>
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/" element={<HomePage />} />
             <Route path="/cart" element={<Cart />}  />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/product-detail" element={<ProductDetailPage />} />
           </Routes>
         </Router>
       </div>

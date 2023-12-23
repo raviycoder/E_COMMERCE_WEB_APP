@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
 import Navbar from '../features/navbar/Navbar'
-import ProductList from '../features/products/ProductList'
+import ProductList from '../features/products-list/components/ProductList'
 
 const HomePage = () => {
   return (

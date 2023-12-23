@@ -6,11 +6,15 @@ export default {
     extend: {
       fontFamily: {
         sunito: ["Nunito"]
-      }
+      },
+      gridTemplateRows: {
+        '[auto,auto,1fr]': 'auto auto 1fr',
+      },
     },
   },
   plugins: [
     require("@tailwindcss/forms"),
     require("@tailwindcss/aspect-ratio"),
+    require('@tailwindcss/aspect-ratio'),
   ],
 };
