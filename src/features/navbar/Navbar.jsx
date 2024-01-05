@@ -8,6 +8,8 @@ import {
   ShoppingCartIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { useSelector } from "react-redux";
+import { selectItems } from "../cart/cartSlice";
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -21,7 +23,7 @@ function classNames(...classes) {
 }
 
 const Navbar = () => {
-  
+  const itmes = useSelector(selectItems)
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -62,22 +64,26 @@ const Navbar = () => {
                 </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <div className=" min-w-max items-center">
-                <p className=" relative text-4xl text-white font-semibold font-sunito max-sm:scale-75 max-[360]:scale-75 max-[310px]:hidden mr-3 max-sm:mr-0">E-commerce</p>
-              </div>
-              <Link to="/cart">
-                <button
-                  type="button"
-                  className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                >
-                  <span className="absolute -inset-1.5" />
-                  <span className="sr-only">View notifications</span>
-                  <ShoppingCartIcon className="h-8 w-8" aria-hidden="true" />
-                </button>
+                <Link to="/">
+                  <div className=" min-w-max items-center">
+                    <p className=" relative text-4xl text-white font-semibold font-sunito max-sm:scale-75 max-[360]:scale-75 max-[310px]:hidden mr-3 max-sm:mr-0">
+                      E-commerce
+                    </p>
+                  </div>
                 </Link>
-                <span className="relative inline-flex items-center rounded-md bg-blue-50 px-2 py-1 mb-5 -left-3 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                  2
-                </span>
+                <Link to="/cart">
+                  <button
+                    type="button"
+                    className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                  >
+                    <span className="absolute -inset-1.5" />
+                    <span className="sr-only">View notifications</span>
+                    <ShoppingCartIcon className="h-8 w-8" aria-hidden="true" />
+                  </button>
+                </Link>
+                {itmes.length>0 && <span className="relative inline-flex items-center rounded-md bg-blue-50 px-2 py-1 mb-5 -left-3 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  {itmes.length}
+                </span>}
 
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3">
@@ -104,7 +110,7 @@ const Navbar = () => {
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <Menu.Item>
                         {({ active }) => (
-                          <a
+                          <Link
                             href="#"
                             className={classNames(
                               active ? "bg-gray-100" : "",
@@ -112,12 +118,12 @@ const Navbar = () => {
                             )}
                           >
                             Your Profile
-                          </a>
+                          </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
+                          <Link
                             href="#"
                             className={classNames(
                               active ? "bg-gray-100" : "",
@@ -125,20 +131,20 @@ const Navbar = () => {
                             )}
                           >
                             Settings
-                          </a>
+                          </Link>
                         )}
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href="#"
+                          <Link
+                            to="/login"
                             className={classNames(
                               active ? "bg-gray-100" : "",
                               "block px-4 py-2 text-sm text-gray-700"
                             )}
                           >
                             Sign out
-                          </a>
+                          </Link>
                         )}
                       </Menu.Item>
                     </Menu.Items>
