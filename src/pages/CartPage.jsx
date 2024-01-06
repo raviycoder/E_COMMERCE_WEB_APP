@@ -7,7 +7,7 @@ const CartPage = () => {
   return (
     <div>
       <Navbar/>
-      <Cart />
+      <Cart useLink={false} />
       </div>
   )
 }

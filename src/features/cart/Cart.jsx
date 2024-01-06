@@ -1,34 +1,43 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteItemFormCartAsync, selectItems, updateItemAsync } from "./cartSlice";
+import {
+  deleteItemFormCartAsync,
+  selectItems,
+  updateItemAsync,
+} from "./cartSlice";
 
-const Cart = () => {
+const Cart = ({useLink, handleOrder}) => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(true);
   // todo : make this discountable price
   const items = useSelector(selectItems);
+
   const totalAmount = items.reduce(
-    (amount, item) => item.price * item.quantity + amount,
+    (amount, item) =>
+      Math.round(item.price * (1 - item.discountPercentage / 100)) *
+        item.quantity +
+      amount,
     0
   );
-  const totalItems = items.reduce(
-    (total, item) => item.quantity + total,
-    0
-  );
+  const totalItems = items.reduce((total, item) => item.quantity + total, 0);
 
   const handleQuntity = (e, item) => {
-    dispatch(updateItemAsync({...item, quantity: +e.target.value}))
-  }
+    dispatch(updateItemAsync({ ...item, quantity: +e.target.value }));
+  };
 
   const handleRemove = (e, id) => {
-    dispatch(deleteItemFormCartAsync(id))
-  }
+    dispatch(deleteItemFormCartAsync(id));
+  };
+
+
   return (
     <>
+    {!items.length && <Navigate to="/" replace={true} />}
       <div className="mx-auto mt-12 bg-white px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold tracking-tight text-gray-900">
           Cart
@@ -55,21 +64,20 @@ const Cart = () => {
                         <p className="ml-4">
                           $
                           {Math.round(
-                            item.price *
-                              (1 - item.discountPercentage / 100)
+                            item.price * (1 - item.discountPercentage / 100)
                           )}
                         </p>
                       </div>
-                      <p className="mt-1 text-sm text-gray-500">
-                        {item.brand}
-                      </p>
+                      <p className="mt-1 text-sm text-gray-500">{item.brand}</p>
                     </div>
                     <div className="flex flex-1 items-end justify-between text-sm">
                       <p className="text-gray-500">
                         Qty
                         <select
-                        onChange={(e)=>handleQuntity(e, item)} 
-                        value={item.quantity} className="border  border-none rounded-md ml-2">
+                          onChange={(e) => handleQuntity(e, item)}
+                          value={item.quantity}
+                          className="border  border-none rounded-md ml-2"
+                        >
                           <option value="1">1</option>
                           <option value="2">2</option>
                           <option value="3">3</option>
@@ -80,7 +88,7 @@ const Cart = () => {
 
                       <div className="flex">
                         <button
-                        onClick={e=>handleRemove(e, item)}
+                          onClick={(e) => handleRemove(e, item)}
                           type="button"
                           className="font-medium text-indigo-600 hover:text-indigo-500"
                         >
@@ -108,12 +116,16 @@ const Cart = () => {
             Shipping and taxes calculated at checkout.
           </p>
           <div className="mt-6">
-            <Link
+            {useLink ? (
+              <button onClick={handleOrder} className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 w-full py-3 text-base font-medium cursor-pointer text-white shadow-sm hover:bg-indigo-700">
+                Order Now
+              </button>
+            ) : (<Link
               to="/checkout"
               className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
             >
               Checkout
-            </Link>
+            </Link>)}
           </div>
           <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
             <p>
