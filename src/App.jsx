@@ -18,6 +18,11 @@ import Protected from "./features/auth/components/Protected";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchItemsByUserIdAsync } from "./features/cart/cartSlice"
 import { selectLoggedInUser } from "./features/auth/authSlice";
+import NotFoundPage from "./pages/NotFoundPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
+import UserOrdersPage from "./pages/UserOrdersPage";
+import UserProfilePage from "./pages/UserProfilePage";
+import { fetchLoggedInUserAsync } from "./features/user/userSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -25,6 +30,7 @@ function App() {
   useEffect(() => {
     if(user){
       dispatch(fetchItemsByUserIdAsync(user.id))
+      dispatch(fetchLoggedInUserAsync(user.id))
     }
   }, [dispatch, user])
   return (
@@ -32,11 +38,15 @@ function App() {
         <Router>
           <Routes>
             <Route path="/checkout" element={<Protected><CheckoutPage /></Protected>} />
+            <Route path="/success/:id" element={<Protected><OrderSuccessPage /></Protected>} />
             <Route path="/" element={<Protected><HomePage /></Protected>} />
             <Route path="/cart" element={<Protected><CartPage /></Protected>} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="*" element={<NotFoundPage />} />
             <Route path="/product-detail/:id" element={<Protected><ProductDetailPage /></Protected>} />
+            <Route path="/orders" element={<Protected><UserOrdersPage /></Protected>} />
+            <Route path="/profile" element={<Protected><UserProfilePage /></Protected>} />
           </Routes>
         </Router>
     </>

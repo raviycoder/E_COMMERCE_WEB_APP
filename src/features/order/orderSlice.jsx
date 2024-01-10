@@ -2,37 +2,40 @@ import { createOrder } from "./orderAPI";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    orders: [],
-    status: 'idle',
-}
+  orders: [],
+  status: "idle",
+  currentOrder: null,
+};
 
 export const createOrderAsync = createAsyncThunk(
-    'order/createOrder',
-    async (order) => {
-        const response = await createOrder(order);
-        return response.data;
-    }
-)
+  "order/createOrder",
+  async (order) => {
+    const response = await createOrder(order);
+    return response.data;
+  }
+);
 
-export const counterSlice = createSlice({
-    name:'order',
-    initialState,
-    reducers: {
-        increment: (state) => {
-            state.value += 1;
-        }
+export const orderSlice = createSlice({
+  name: "order",
+  initialState,
+  reducers: {
+    resetOrder: (state) => {
+      state.currentOrder = null;
     },
-    extraReducers: (builder) => {
-        builder
-        .addCase(createOrderAsync.pending, (state) => {
-            state.status = 'loading';
-        })
-        .addCase(createOrderAsync.fulfilled, (state, action) => {
-            state.status = 'idle';
-            state.orders.push(action.payload);
-        })
-    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createOrderAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createOrderAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.orders.push(action.payload);
+        state.currentOrder = action.payload;
+      });
+  },
 });
 
-export const {increment} = counterSlice.actions;
-export default counterSlice.reducer
+export const { resetOrder } = orderSlice.actions;
+export const selectCurrentOrder = (state) => state.order.currentOrder
+export default orderSlice.reducer;

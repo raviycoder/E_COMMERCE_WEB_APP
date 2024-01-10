@@ -1,14 +1,15 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unescaped-entities */
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { FaPhone } from "react-icons/fa6";
 import Cart from "../features/cart/Cart";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLoggedInUser, updateUserAsync } from "../features/auth/authSlice";
+import { updateUserAsync } from "../features/auth/authSlice";
 import { useState } from "react";
-import { createOrderAsync } from "../features/order/orderSlice";
+import { createOrderAsync, selectCurrentOrder } from "../features/order/orderSlice";
 import { selectItems } from "../features/cart/cartSlice";
+import { selectUserInfo } from "../features/user/userSlice";
 
 
 
@@ -16,6 +17,7 @@ import { selectItems } from "../features/cart/cartSlice";
 
 const CheckoutPage = () => {
   const items = useSelector(selectItems);
+  const currentOrder = useSelector(selectCurrentOrder)
 
   const totalAmount = items.reduce(
     (amount, item) =>
@@ -47,17 +49,22 @@ const CheckoutPage = () => {
     setPaymentMethod(e.target.value)
   }
   
-  const user = useSelector(selectLoggedInUser);
+  const user = useSelector(selectUserInfo);
   
 
   const handleOrder = (e) => {
-    const order = {items, totalAmount, totalItems, user, paymentMethod, selectedAddress}
-    dispatch(createOrderAsync(order))
-    // TODO: Redirect to order-success page
-    //TODO: clear cart after order
-    //TODO: on server change the stock number of items
+   if(selectedAddress && paymentMethod){ const order = {items, totalAmount, totalItems, user, paymentMethod, selectedAddress, status: 'pending'}
+   // TODO: Redirect to order-success page
+   //TODO: clear cart after order
+   //TODO: on server change the stock number of items
+   dispatch(createOrderAsync(order))
+  } else {
+    alert("Enter Address and Payment method")
+  }
   }
   return (
+    <>
+    {currentOrder && <Navigate to={`/success/${currentOrder.id}`} replace={true} />}
     <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
       <h1 className="text-3xl relative -right-[21px] font-bold mt-2">
         Personal Information
@@ -339,7 +346,7 @@ const CheckoutPage = () => {
           <Cart useLink={true} handleOrder={handleOrder} />
         </div>
       </div>
-    </div>
+    </div></>
   );
 };
 

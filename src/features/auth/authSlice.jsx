@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { checkUser, createUser, updateUser } from "./authAPI";
-
+import { checkUser, createUser } from "./authAPI";
+import { updateUser } from "../user/userAPI";
 const initialState = {
   loggedInUser: null,
   status: 'idle',
