@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { checkUser, createUser } from "./authAPI";
+import { checkUser, createUser, signOut } from "./authAPI";
 import { updateUser } from "../user/userAPI";
 const initialState = {
   loggedInUser: null,
@@ -28,6 +28,14 @@ export const checkUserAsync = createAsyncThunk(
   'user/checkUser',
   async (loginInfo) => {
     const response = await checkUser(loginInfo);
+    return response.data
+  }
+);
+
+export const signOutAsync = createAsyncThunk(
+  'user/signOut',
+  async (loginInfo) => {
+    const response = await signOut(loginInfo);
     return response.data
   }
 );
@@ -68,6 +76,17 @@ export const counterSlice = createSlice({
       state.loggedInUser = action.payload;
     })
     .addCase(updateUserAsync.rejected, (state, action) => {
+      state.status = 'idle';
+      state.error = action.error
+    })
+    .addCase(signOutAsync.pending, (state) => {
+      state.status = 'loading';
+    })
+    .addCase(signOutAsync.fulfilled, (state, action) => {
+      state.status = 'idle';
+      state.loggedInUser = null;
+    })
+    .addCase(signOutAsync.rejected, (state, action) => {
       state.status = 'idle';
       state.error = action.error
     })

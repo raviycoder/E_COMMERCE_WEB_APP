@@ -23,6 +23,8 @@ import OrderSuccessPage from "./pages/OrderSuccessPage";
 import UserOrdersPage from "./pages/UserOrdersPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import { fetchLoggedInUserAsync } from "./features/user/userSlice";
+import Logout from "./features/auth/components/Logout";
+import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -42,6 +44,8 @@ function App() {
             <Route path="/" element={<Protected><HomePage /></Protected>} />
             <Route path="/cart" element={<Protected><CartPage /></Protected>} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forget-password" element={<ForgetPasswordPage />} />
+            <Route path="/logout" element={<Logout />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="*" element={<NotFoundPage />} />
             <Route path="/product-detail/:id" element={<Protected><ProductDetailPage /></Protected>} />

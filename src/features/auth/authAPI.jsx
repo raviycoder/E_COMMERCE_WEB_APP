@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-async-promise-executor */
 export function createUser(userData) {
   return new Promise(async (resolve) => {
@@ -27,6 +28,12 @@ export function checkUser(loginInfo) {
     } else {
       reject({message: 'user not found'})
     }
+  });
+}
+
+export function signOut(userId) {
+  return new Promise(async (resolve, reject) => {
+    resolve({data: 'success'})
   });
 }
 
