@@ -79,6 +79,12 @@ const UserProfile = () => {
             </button>
           </dd>
         </div>
+        {user.role === 'admin' && <div className="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4">
+          <dt className="font-medium text-gray-900">Role</dt>
+          <dd className="text-gray-700 sm:col-span-2 flex flex-row items-center">
+            <p className=" capitalize">{user.role}</p>
+          </dd>
+        </div>}
 
         {/* <div className="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4">
           <dt className="font-medium text-gray-900">Salary</dt>

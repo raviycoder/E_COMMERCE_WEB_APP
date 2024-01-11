@@ -25,6 +25,38 @@ export function fetchProductsById(id) {
   });
 }
 
+export function createProduct(product) {
+  return new Promise((resolve, reject) => {
+    fetch("http://localhost:8080/products/", {
+      method: 'POST',
+      body:JSON.stringify(product),
+      headers:{'Content-Type':'application/json'}
+    })
+      .then((response) => response.json())
+      .then((data) => resolve({ data }))
+      .catch((error) => {
+        console.error("Error fetching all products:", error);
+        reject(error);
+      });
+  });
+}
+
+export function updateProduct(update) {
+  return new Promise((resolve, reject) => {
+    fetch("http://localhost:8080/products/"+update.id, {
+      method: 'PATCH',
+      body:JSON.stringify(update),
+      headers:{'Content-Type':'application/json'}
+    })
+      .then((response) => response.json())
+      .then((data) => resolve({ data }))
+      .catch((error) => {
+        console.error("Error fetching all products:", error);
+        reject(error);
+      });
+  });
+}
+
 export function fetchCategories() {
   return new Promise(async (resolve) =>{
     const response = await fetch('http://localhost:8080/categories') 

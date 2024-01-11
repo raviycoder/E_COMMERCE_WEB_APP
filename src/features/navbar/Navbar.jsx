@@ -10,12 +10,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { useSelector } from "react-redux";
 import { selectItems } from "../cart/cartSlice";
+import { selectLoggedInUser } from "../auth/authSlice";
 
 const navigation = [
-  { name: "Dashboard", href: "#", current: true },
-  { name: "Team", href: "#", current: false },
-  { name: "Projects", href: "#", current: false },
-  { name: "Calendar", href: "#", current: false },
+  { name: "Dashboard", to: "#", user: true },
+  { name: "About", to: "#", user: true },
+  { name: "Categories", to: "#", user: true },
+  { name: "Admin", to: "/admin", admin: true },
 ];
 
 function classNames(...classes) {
@@ -23,7 +24,8 @@ function classNames(...classes) {
 }
 
 const Navbar = () => {
-  const itmes = useSelector(selectItems)
+  const itmes = useSelector(selectItems);
+  const user = useSelector(selectLoggedInUser)
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -45,21 +47,23 @@ const Navbar = () => {
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="hidden sm:ml-6 md:block">
                   <div className="flex space-x-4">
-                    {navigation.map((item) => (
-                      <a
-                        key={item.name}
-                        href={item.href}
-                        className={classNames(
-                          item.current
-                            ? "bg-gray-900 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "rounded-md px-3 py-2 text-sm font-medium"
-                        )}
-                        aria-current={item.current ? "page" : undefined}
-                      >
-                        {item.name}
-                      </a>
-                    ))}
+                    {navigation.map((item) =>
+                      (item[user.role] ? (
+                        <Link
+                          key={item.name}
+                          to={item.to}
+                          className={classNames(
+                            item.user
+                              ? "bg-gray-900 text-white"
+                              : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                            "rounded-md px-3 py-2 text-sm font-medium"
+                          )}
+                          aria-current={item.user ? "page" : undefined}
+                        >
+                          {item.name}
+                        </Link>
+                      ) : null)
+                    )}
                   </div>
                 </div>
               </div>
@@ -81,9 +85,11 @@ const Navbar = () => {
                     <ShoppingCartIcon className="h-8 w-8" aria-hidden="true" />
                   </button>
                 </Link>
-                {itmes.length>0 && <span className="relative inline-flex items-center rounded-md bg-blue-50 px-2 py-1 mb-5 -left-3 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                  {itmes.length}
-                </span>}
+                {itmes.length > 0 && (
+                  <span className="relative inline-flex items-center rounded-md bg-blue-50 px-2 py-1 mb-5 -left-3 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                    {itmes.length}
+                  </span>
+                )}
 
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative ml-3">
@@ -160,14 +166,14 @@ const Navbar = () => {
                 <Disclosure.Button
                   key={item.name}
                   as="a"
-                  href={item.href}
+                  href={item.tohref}
                   className={classNames(
-                    item.current
+                    item.user
                       ? "bg-gray-900 text-white"
                       : "text-gray-300 hover:bg-gray-700 hover:text-white",
                     "block rounded-md px-3 py-2 text-base font-medium"
                   )}
-                  aria-current={item.current ? "page" : undefined}
+                  aria-current={item.user ? "page" : undefined}
                 >
                   {item.name}
                 </Disclosure.Button>

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchAllProducts, fetchProductsByFilters, fetchBrands, fetchCategories, fetchProductsById } from './ProductAPI';
+import { fetchAllProducts, fetchProductsByFilters, fetchBrands, fetchCategories, fetchProductsById, createProduct, updateProduct } from './ProductAPI';
 
 const initialState = {
   products: [],
@@ -34,6 +34,22 @@ export const fetchCategoriesAsync = createAsyncThunk(
   }
 );
 
+export const createProductAsync = createAsyncThunk(
+  'product/createProduct',
+  async (product) => {
+    const response = await createProduct(product);
+    return response.data;
+  }
+);
+
+export const updateProductAsync = createAsyncThunk(
+  'product/updateProduct',
+  async (update) => {
+    const response = await updateProduct(update);
+    return response.data;
+  }
+);
+
 export const fetchAllProductsAsync = createAsyncThunk(
   'product/fetchAllProducts',
   async () => {
@@ -53,7 +69,11 @@ export const fetchProductsByFiltersAsync = createAsyncThunk(
 export const productSlice = createSlice({
   name: 'product',
   initialState,
-  reducers: {},
+  reducers: {
+    clearSelectedProduct:(state)=>{
+      state.selectedProducts = null
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAllProductsAsync.pending, (state) => {
@@ -106,10 +126,32 @@ export const productSlice = createSlice({
       })
       .addCase(fetchAllProductByIdAsync.rejected, (state) => {
         state.status = 'error';
+      })
+      .addCase(createProductAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(createProductAsync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.products.push(action.payload);
+      })
+      .addCase(createProductAsync.rejected, (state) => {
+        state.status = 'error';
+      })
+      .addCase(updateProductAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateProductAsync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        const index = state.products.findIndex(product=>product.id === action.payload.id)
+        state.products[index] = action.payload
+      })
+      .addCase(updateProductAsync.rejected, (state) => {
+        state.status = 'error';
       });
   },
 });
 
+export const {clearSelectedProduct} = productSlice.actions
 export const selectAllProducts = (state) => state.product.products;
 export const selectTotalItems = (state) => state.product.totalItems;
 export const selectBrands = (state) => state.product.brands;
