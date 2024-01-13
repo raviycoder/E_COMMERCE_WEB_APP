@@ -17,6 +17,7 @@ const navigation = [
   { name: "About", to: "#", user: true },
   { name: "Categories", to: "#", user: true },
   { name: "Admin", to: "/admin", admin: true },
+  { name: "Orders", to: "/admin/orders", admin: true },
 ];
 
 function classNames(...classes) {

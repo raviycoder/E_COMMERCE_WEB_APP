@@ -30,6 +30,7 @@ import AdminHome from "./pages/AdminHome";
 import AdminProductDetailPage from "./pages/AdminProductDetailPage";
 import Copy from "./features/admin/components/ProductForm";
 import AdminProductFormPage from "./pages/AdminProductFormPage";
+import AdminOrdersPage from "./pages/AdminOrdersPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -138,6 +139,11 @@ function App() {
               path="/admin/product_form/edit/:id"
               element={
                   <ProtectedAdmin><AdminProductFormPage /></ProtectedAdmin>
+              }/>
+            <Route
+              path="/admin/orders"
+              element={
+                  <ProtectedAdmin><AdminOrdersPage /></ProtectedAdmin>
               }/>
         </Routes>
       </Router>
