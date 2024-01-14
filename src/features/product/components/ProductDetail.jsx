@@ -1,3 +1,5 @@
+import { Bounce, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 /* eslint-disable no-undef */
 import { useEffect, useState } from "react";
 import { StarIcon } from "@heroicons/react/20/solid";
@@ -5,8 +7,7 @@ import { RadioGroup } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllProductByIdAsync, selectedProductById } from "../productSlice";
 import { useParams } from "react-router-dom";
-import { addToCartAsync } from "../../cart/cartSlice";
-import { selectLoggedInUser } from "../../auth/authSlice";
+import { addToCartAsync, selectItems } from "../../cart/cartSlice";
 
 const colors = [
   { name: "White", class: "bg-white", selectedClass: "ring-gray-400" },
@@ -24,28 +25,60 @@ const sizes = [
   { name: "3XL", inStock: true },
 ];
 const highlights = [
-  'Hand cut and sewn locally',
-  'Dyed with our proprietary colors',
-  'Pre-washed & pre-shrunk',
-  'Ultra-soft 100% cotton',
-]
+  "Hand cut and sewn locally",
+  "Dyed with our proprietary colors",
+  "Pre-washed & pre-shrunk",
+  "Ultra-soft 100% cotton",
+];
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-
 export default function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [selectedSize, setSelectedSize] = useState(sizes[2]);
-  const user = useSelector(selectLoggedInUser)
+  const items = useSelector(selectItems)
+  const user = useSelector(selectItems);
   const product = useSelector(selectedProductById);
   const dispatch = useDispatch();
   const params = useParams();
-  
+
   const handleCart = (e) => {
-    e.preventDefault()
-    dispatch(addToCartAsync({...product, quantity:1, user:user.id}))
-  }
+    e.preventDefault();
+    if (items.findIndex((item) => item.productId === product.id) < 0) {
+      const newItem = {
+        ...product,
+        productId: product.id,
+        quantity: 1,
+        user: user.id,
+      };
+      delete newItem["id"];
+      dispatch(addToCartAsync(newItem));
+      toast.info('🛒 Product added in Cart', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+        });
+    } else {
+      toast.info('🛒 Product already added in Cart', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+        });
+    }
+  };
 
   useEffect(() => {
     dispatch(fetchAllProductByIdAsync(params.id));
@@ -140,17 +173,17 @@ export default function ProductDetail() {
             <div className="mt-4 lg:row-span-3 lg:mt-0">
               <h2 className="sr-only">Product information</h2>
               <p className="text-3xl tracking-tight text-gray-900">
-              <div className="flex flex-row items-end">
-                      <p className="text-3xl font-medium text-gray-900">
-                        $
-                        {Math.round(
-                          product.price * (1 - product.discountPercentage / 100)
-                        )}
-                      </p>
-                      <p className="text-xl ml-2 font-medium text-gray-600 line-through">
-                        ${product.price}
-                      </p>
-                    </div>
+                <div className="flex flex-row items-end">
+                  <p className="text-3xl font-medium text-gray-900">
+                    $
+                    {Math.round(
+                      product.price * (1 - product.discountPercentage / 100)
+                    )}
+                  </p>
+                  <p className="text-xl ml-2 font-medium text-gray-600 line-through">
+                    ${product.price}
+                  </p>
+                </div>
               </p>
 
               {/* Reviews */}
@@ -329,10 +362,10 @@ export default function ProductDetail() {
                 <div className="mt-4">
                   <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
                     {highlights.map((highlight) => (
-                        <li key={highlight} className="text-gray-400">
-                          <span className="text-gray-600">{highlight}</span>
-                        </li>
-                      ))}
+                      <li key={highlight} className="text-gray-400">
+                        <span className="text-gray-600">{highlight}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>

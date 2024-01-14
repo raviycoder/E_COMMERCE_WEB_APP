@@ -129,22 +129,31 @@ function App() {
                 <AdminProductDetailPage />
               </ProtectedAdmin>
             }
-            />
-            <Route
-              path="/admin/product_form"
-              element={
-                  <ProtectedAdmin><Copy /></ProtectedAdmin>
-              }/>
-            <Route
-              path="/admin/product_form/edit/:id"
-              element={
-                  <ProtectedAdmin><AdminProductFormPage /></ProtectedAdmin>
-              }/>
-            <Route
-              path="/admin/orders"
-              element={
-                  <ProtectedAdmin><AdminOrdersPage /></ProtectedAdmin>
-              }/>
+          />
+          <Route
+            path="/admin/product_form"
+            element={
+              <ProtectedAdmin>
+                <Copy />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/admin/product_form/edit/:id"
+            element={
+              <ProtectedAdmin>
+                <AdminProductFormPage />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedAdmin>
+                <AdminOrdersPage />
+              </ProtectedAdmin>
+            }
+          />
         </Routes>
       </Router>
     </>
