@@ -28,9 +28,11 @@ import {
   selectAllProducts,
   selectBrands,
   selectCategories,
+  selectProductListStatus,
   selectTotalItems,
 } from "../productSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { Circles } from "react-loader-spinner";
 
 const sortOptions = [
   { name: "Best Rating", sort: "rating", order: "desc", current: false },
@@ -48,6 +50,7 @@ const subCategories = [
 const ProductList = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectAllProducts);
+  const status = useSelector(selectProductListStatus);
   const brands = useSelector(selectBrands);
   const categories = useSelector(selectCategories);
   const totalItems = useSelector(selectTotalItems);
@@ -59,14 +62,14 @@ const ProductList = () => {
     {
       id: "category",
       name: "Category",
-      options: categories
+      options: categories,
     },
     {
       id: "brand",
       name: "Brands",
-      options: brands
-    }
-  ]
+      options: brands,
+    },
+  ];
 
   const handleFilter = (e, section, option) => {
     console.log(e.target.checked);
@@ -89,7 +92,7 @@ const ProductList = () => {
 
   const handleSort = (e, option) => {
     const sort = { _sort: option.sort, _order: option.order };
-    console.log({sort});
+    console.log({ sort });
     setSort(sort);
   };
 
@@ -102,18 +105,29 @@ const ProductList = () => {
     const pagination = { _page: page, _limit: ITEMS_PER_PAGE };
     dispatch(fetchProductsByFiltersAsync({ filter, sort, pagination }));
   }, [dispatch, filter, sort, page]);
-  
-  useEffect(() => {
-    setPage(1)
-  }, [totalItems, sort])
 
-  useEffect(()=>{
-    dispatch(fetchBrandsAsync())
-    dispatch(fetchCategoriesAsync())
-  }, [])
+  useEffect(() => {
+    setPage(1);
+  }, [totalItems, sort]);
+
+  useEffect(() => {
+    dispatch(fetchBrandsAsync());
+    dispatch(fetchCategoriesAsync());
+  }, []);
 
   return (
     <div className="bg-white">
+      {status === "pending" ? (
+        <Circles
+          height="80"
+          width="80"
+          color="#4fa94d"
+          ariaLabel="circles-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+      ) : null}
       <div>
         <MobileFilter
           handleFilter={handleFilter}
@@ -155,14 +169,16 @@ const ProductList = () => {
                         <Menu.Item key={option.name}>
                           {({ active }) => (
                             <p
-                              onChange={(e) => {handleSort(e, option), console.log(option)}}
-                              className={(
-                                option.current
+                              onChange={(e) => {
+                                handleSort(e, option), console.log(option);
+                              }}
+                              className={
+                                (option.current
                                   ? "font-medium text-gray-900"
                                   : "text-gray-500",
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm"
-                              )}
+                                "block px-4 py-2 text-sm")
+                              }
                             >
                               {option.name}
                             </p>
@@ -225,7 +241,7 @@ function MobileFilter({
   mobileFiltersOpen,
   setMobileFiltersOpen,
   handleFilter,
-  filters
+  filters,
 }) {
   return (
     <div>
@@ -356,71 +372,74 @@ function MobileFilter({
 function DesktopFilter({ handleFilter, filters }) {
   return (
     <div className="hidden lg:block">
-        {filters.map((section) => (
-          <Disclosure
-            as="div"
-            key={section.id}
-            className="border-b border-gray-200 py-6"
-          >
-            {({ open }) => (
-              <>
-                <h3 className="-my-3 flow-root">
-                  <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500" aria-label={`Toggle ${section.name} filters`}>
-                    <span className="font-medium text-gray-900">
-                      {section.name}
-                    </span>
-                    <span className="ml-6 flex items-center">
-                      {open ? (
-                        <MinusIcon className="h-5 w-5" aria-hidden="true" />
-                      ) : (
-                        <PlusIcon className="h-5 w-5" aria-hidden="true" />
-                      )}
-                    </span>
-                  </Disclosure.Button>
-                </h3>
-                <Disclosure.Panel className="pt-6">
-                  <div className="space-y-4">
-                    {section.options.map((option, optionIdx) => (
-                      <div key={option.value} className="flex items-center">
-                        <input
-                          id={`filter-${section.id}-${optionIdx}`}
-                          name={`${section.id}[]`}
-                          defaultValue={option.value}
-                          type="checkbox"
-                          defaultChecked={option.checked}
-                          onChange={(e) => handleFilter(e, section, option)}
-                          className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 rounded-full"
-                        />
-                        <label
-                          htmlFor={`filter-${section.id}-${optionIdx}`}
-                          className="ml-3 text-sm text-gray-600"
-                        >
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </Disclosure.Panel>
-              </>
-            )}
-          </Disclosure>
-        ))}
+      {filters.map((section) => (
+        <Disclosure
+          as="div"
+          key={section.id}
+          className="border-b border-gray-200 py-6"
+        >
+          {({ open }) => (
+            <>
+              <h3 className="-my-3 flow-root">
+                <Disclosure.Button
+                  className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500"
+                  aria-label={`Toggle ${section.name} filters`}
+                >
+                  <span className="font-medium text-gray-900">
+                    {section.name}
+                  </span>
+                  <span className="ml-6 flex items-center">
+                    {open ? (
+                      <MinusIcon className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <PlusIcon className="h-5 w-5" aria-hidden="true" />
+                    )}
+                  </span>
+                </Disclosure.Button>
+              </h3>
+              <Disclosure.Panel className="pt-6">
+                <div className="space-y-4">
+                  {section.options.map((option, optionIdx) => (
+                    <div key={option.value} className="flex items-center">
+                      <input
+                        id={`filter-${section.id}-${optionIdx}`}
+                        name={`${section.id}[]`}
+                        defaultValue={option.value}
+                        type="checkbox"
+                        defaultChecked={option.checked}
+                        onChange={(e) => handleFilter(e, section, option)}
+                        className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 rounded-full"
+                      />
+                      <label
+                        htmlFor={`filter-${section.id}-${optionIdx}`}
+                        className="ml-3 text-sm text-gray-600"
+                      >
+                        {option.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </Disclosure.Panel>
+            </>
+          )}
+        </Disclosure>
+      ))}
     </div>
   );
 }
 function Pagination({ handlePage, page, setPage, totalItems = 55 }) {
-  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   return (
     <>
       <div className="flex flex-1 justify-between sm:hidden">
         <div
-          onClick={(e)=>handlePage(page > 1 ? page - 1 : page)}
+          onClick={(e) => handlePage(page > 1 ? page - 1 : page)}
           className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
         >
           Previous
         </div>
         <div
-          onClick={(e)=>handlePage(page < totalPages ? page + 1 : page)}
+          onClick={(e) => handlePage(page < totalPages ? page + 1 : page)}
           className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
         >
           Next
@@ -448,31 +467,29 @@ function Pagination({ handlePage, page, setPage, totalItems = 55 }) {
             aria-label="Pagination"
           >
             <div
-              onClick={(e)=>handlePage(page > 1 ? page - 1 : page)}
+              onClick={(e) => handlePage(page > 1 ? page - 1 : page)}
               className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
             >
               <span className="sr-only">Previous</span>
               <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
             </div>
             {/* Current: "z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
-            {Array.from({ length: totalPages }).map(
-              (el, index) => (
-                <div
-                  onClick={(e) => handlePage(index + 1)}
-                  aria-current="page"
-                  key={index}
-                  className={`relative cursor-pointer z-10 inline-flex items-center ${
-                    index + 1 === page
-                      ? "bg-indigo-600 text-white"
-                      : "text-gray-400"
-                  } px-4 py-2 text-sm font-semibold  focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600`}
-                >
-                  {index + 1}
-                </div>
-              )
-            )}
+            {Array.from({ length: totalPages }).map((el, index) => (
+              <div
+                onClick={(e) => handlePage(index + 1)}
+                aria-current="page"
+                key={index}
+                className={`relative cursor-pointer z-10 inline-flex items-center ${
+                  index + 1 === page
+                    ? "bg-indigo-600 text-white"
+                    : "text-gray-400"
+                } px-4 py-2 text-sm font-semibold  focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600`}
+              >
+                {index + 1}
+              </div>
+            ))}
             <div
-              onClick={(e)=>handlePage(page<totalPages? page + 1 : page)}
+              onClick={(e) => handlePage(page < totalPages ? page + 1 : page)}
               className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
             >
               <span className="sr-only">Next</span>
@@ -485,17 +502,33 @@ function Pagination({ handlePage, page, setPage, totalItems = 55 }) {
   );
 }
 function ProductGrid({ products }) {
+  const status = useSelector(selectProductListStatus);
   return (
-    <div className="lg:col-span-3">
-      <div className="bg-white">
-        <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-0 lg:max-w-7xl lg:px-8">
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-            Customers also purchased
-          </h2>
+    <>
+    {status === "loading" ? (
+        <div className="flex relative items-center justify-center h-full w-full lg:left-[300px] "><Circles
+          height="80"
+          width="80"
+          color="#00A9FF"
+          ariaLabel="circles-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        /></div>
+        
+      ) : null}
+      
+      <div className="lg:col-span-3">
+        <div className="bg-white">
+          <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-0 lg:max-w-7xl lg:px-8">
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+              Customers also purchased
+            </h2>
 
-          <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-8 max-sm:grid-cols-2 ">
-            {products.map((product) => (
-                <Link to={`/product-detail/${product.id}`}
+            <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-8 max-sm:grid-cols-2 ">
+              {products.map((product) => (
+                <Link
+                  to={`/product-detail/${product.id}`}
                   key={product.id}
                   className="group relative border-solid border-0 border-gray-200 p-1 shadow-lg rounded-lg hover:scale-105 duration-300 "
                 >
@@ -533,22 +566,23 @@ function ProductGrid({ products }) {
                         ${product.price}
                       </p>
                     </div>
-                  {product.deleted && (
-                    <div>
-                      <p className="text-sm text-red-400">Product Deleted</p>
-                    </div>
-                  )}
-                  {product.stock<=0 && (
-                    <div>
-                      <p className="text-sm text-red-400">out of stock</p>
-                    </div>
-                  )}
+                    {product.deleted && (
+                      <div>
+                        <p className="text-sm text-red-400">Product Deleted</p>
+                      </div>
+                    )}
+                    {product.stock <= 0 && (
+                      <div>
+                        <p className="text-sm text-red-400">out of stock</p>
+                      </div>
+                    )}
                   </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

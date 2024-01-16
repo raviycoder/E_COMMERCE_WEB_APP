@@ -5,10 +5,12 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { resetCartAsync } from "../features/cart/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLoggedInUser } from "../features/auth/authSlice";
-import { resetOrder } from "../features/order/orderSlice";
+import { resetOrder, selectOrderStatus } from "../features/order/orderSlice";
+import { Circles } from "react-loader-spinner";
 
 const OrderSuccessPage = () => {
   const params = useParams();
+  const status = useSelector(selectOrderStatus)
   const dispatch = useDispatch()
   const user = useSelector(selectLoggedInUser)
   useEffect(() => {
@@ -17,6 +19,16 @@ const OrderSuccessPage = () => {
   }, [dispatch, user])
   return (
     <>
+    {status === "loading" ? (
+        <div className="flex relative items-center justify-center h-full w-full"><Circles
+          height="80"
+          width="80"
+          color="#00A9FF"
+          ariaLabel="circles-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        /></div>):null}
       {!params.id && <Navigate to="/" replace={true} />}
       <div className="bg-gray-100 h-screen">
         <div className="bg-white p-6  md:mx-auto">

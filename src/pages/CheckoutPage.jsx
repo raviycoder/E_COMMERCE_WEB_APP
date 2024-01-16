@@ -7,9 +7,10 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUserAsync } from "../features/auth/authSlice";
 import { useState } from "react";
-import { createOrderAsync, selectCurrentOrder } from "../features/order/orderSlice";
+import { createOrderAsync, selectCurrentOrder, selectOrderStatus } from "../features/order/orderSlice";
 import { selectItems } from "../features/cart/cartSlice";
 import { selectUserInfo } from "../features/user/userSlice";
+import { Circles } from "react-loader-spinner";
 
 
 
@@ -50,7 +51,7 @@ const CheckoutPage = () => {
   }
   
   const user = useSelector(selectUserInfo);
-  
+  const status = useSelector(selectOrderStatus)
 
   const handleOrder = (e) => {
    if(selectedAddress && paymentMethod){ const order = {items, totalAmount, totalItems, user, paymentMethod, selectedAddress, status: 'pending'}
@@ -64,6 +65,16 @@ const CheckoutPage = () => {
   }
   return (
     <>
+    {status === "loading" ? (
+      <div className="flex relative items-center justify-center h-full w-full "><Circles
+        height="80"
+        width="80"
+        color="#00A9FF"
+        ariaLabel="circles-loading"
+        wrapperStyle={{}}
+        wrapperClass=""
+        visible={true}
+      /></div>):null}
     {currentOrder && <Navigate to={`/success/${currentOrder.id}`} replace={true} />}
     <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
       <h1 className="text-3xl relative -right-[21px] font-bold mt-2">

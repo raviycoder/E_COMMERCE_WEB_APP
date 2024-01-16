@@ -68,5 +68,6 @@ export const userSlice = createSlice({
 export const selectUserOrders = (state) => state.user.userOrders;
 export const selectUserInfo = (state) => state.user.userInfo
 export const { increment } = userSlice.actions;
+export const selectUserStatus = (state) => state.user.status;
 
 export default userSlice.reducer;

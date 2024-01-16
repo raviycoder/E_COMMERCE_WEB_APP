@@ -56,7 +56,7 @@ export default function ProductDetail() {
       dispatch(addToCartAsync(newItem));
       toast.info('🛒 Product added in Cart', {
         position: "top-right",
-        autoClose: 5000,
+        autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,

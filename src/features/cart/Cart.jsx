@@ -8,14 +8,18 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deleteItemFormCartAsync,
   selectItems,
+  selectItemsStatus,
   updateItemAsync,
 } from "./cartSlice";
+import { Circles } from "react-loader-spinner";
+import Modal from "../common/Modal";
 
 const Cart = ({useLink, handleOrder}) => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(true);
   // todo : make this discountable price
   const items = useSelector(selectItems);
+  const [openModal, setOpenModal] = useState(null);
 
   const totalAmount = items.reduce(
     (amount, item) =>
@@ -26,6 +30,8 @@ const Cart = ({useLink, handleOrder}) => {
   );
   const totalItems = items.reduce((total, item) => item.quantity + total, 0);
 
+  const status = useSelector(selectItemsStatus)
+
   const handleQuntity = (e, item) => {
     dispatch(updateItemAsync({ ...item, quantity: +e.target.value }));
   };
@@ -35,8 +41,19 @@ const Cart = ({useLink, handleOrder}) => {
   };
 
 
+
   return (
     <>
+    {status === "loading" ? (
+        <div className="flex relative items-center justify-center h-full w-full"><Circles
+          height="80"
+          width="80"
+          color="#00A9FF"
+          ariaLabel="circles-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        /></div>):null}
     {!items.length && <Navigate to="/" replace={true} />}
       <div className="mx-auto mt-12 bg-white px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold tracking-tight text-gray-900">
@@ -88,7 +105,7 @@ const Cart = ({useLink, handleOrder}) => {
 
                       <div className="flex">
                         <button
-                          onClick={(e) => handleRemove(e, item)}
+                          onClick={e=>{setOpenModal(item.id)}}
                           type="button"
                           className="font-medium text-indigo-600 hover:text-indigo-500"
                         >
