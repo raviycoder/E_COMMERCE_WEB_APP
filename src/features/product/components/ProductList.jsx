@@ -38,14 +38,15 @@ const sortOptions = [
   { name: "Best Rating", sort: "rating", order: "desc", current: false },
   { name: "Price: Low to High", sort: "price", order: "asc", current: false },
   { name: "Price: High to Low", sort: "price", order: "desc", current: false },
+  { name: "Default Option", sort: "price", order: "", current: false },
 ];
-const subCategories = [
-  { name: "Totes", href: "#" },
-  { name: "Backpacks", href: "#" },
-  { name: "Travel Bags", href: "#" },
-  { name: "Hip Bags", href: "#" },
-  { name: "Laptop Sleeves", href: "#" },
-];
+// const subCategories = [
+//   { name: "Totes", href: "#" },
+//   { name: "Backpacks", href: "#" },
+//   { name: "Travel Bags", href: "#" },
+//   { name: "Hip Bags", href: "#" },
+//   { name: "Laptop Sleeves", href: "#" },
+// ];
 
 const ProductList = () => {
   const dispatch = useDispatch();
@@ -91,6 +92,7 @@ const ProductList = () => {
   };
 
   const handleSort = (e, option) => {
+    console.log("this is a sort")
     const sort = { _sort: option.sort, _order: option.order };
     console.log({ sort });
     setSort(sort);
@@ -169,9 +171,9 @@ const ProductList = () => {
                         <Menu.Item key={option.name}>
                           {({ active }) => (
                             <p
-                              onChange={(e) => {
-                                handleSort(e, option), console.log(option);
-                              }}
+                              onClick={(e) =>
+                                handleSort(e, option)
+                              }
                               className={
                                 (option.current
                                   ? "font-medium text-gray-900"
@@ -289,19 +291,6 @@ function MobileFilter({
 
                 {/* Filters */}
                 <form className="mt-4 border-t border-gray-200">
-                  <h3 className="sr-only">Categories</h3>
-                  <ul
-                    role="list"
-                    className="px-2 py-3 font-medium text-gray-900"
-                  >
-                    {subCategories.map((category) => (
-                      <li key={category.name}>
-                        <a href={category.href} className="block px-2 py-3">
-                          {category.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
 
                   {filters.map((section) => (
                     <Disclosure
@@ -344,6 +333,7 @@ function MobileFilter({
                                     defaultValue={option.value}
                                     type="checkbox"
                                     defaultChecked={option.checked}
+                                    onChange={(e)=>handleFilter(e, section, option)}
                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                   />
                                   <label
@@ -542,7 +532,7 @@ function ProductGrid({ products }) {
                   <div className="mt-4 flex justify-between">
                     <div>
                       <h3 className="text-sm text-gray-700 font-medium">
-                        <div href={product.href}>
+                        <div href={product.thumbnail}>
                           <span
                             aria-hidden="true"
                             className="absolute inset-0"

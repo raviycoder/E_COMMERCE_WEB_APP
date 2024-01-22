@@ -6,7 +6,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  deleteItemFormCartAsync,
+  deleteItemFromCartAsync,
   selectItems,
   selectItemsStatus,
   updateItemAsync,
@@ -14,47 +14,57 @@ import {
 import { Circles } from "react-loader-spinner";
 import Modal from "../common/Modal";
 
-const Cart = ({useLink, handleOrder}) => {
+const Cart = ({ useLink, handleOrder }) => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(true);
   // todo : make this discountable price
   const items = useSelector(selectItems);
   const [openModal, setOpenModal] = useState(null);
 
+  // const totalAmount = items.reduce(
+  //   (amount, item) => item.product.discountPercentage * item.quantity + amount,
+  //   0
+  // );
   const totalAmount = items.reduce(
     (amount, item) =>
-      Math.round(item.price * (1 - item.discountPercentage / 100)) *
+      Math.round(
+        item.product.price * (1 - item.product.discountPercentage / 100),
+        2
+      ) *
         item.quantity +
       amount,
     0
   );
+  console.log(items)
+
   const totalItems = items.reduce((total, item) => item.quantity + total, 0);
 
-  const status = useSelector(selectItemsStatus)
+  const status = useSelector(selectItemsStatus);
 
   const handleQuntity = (e, item) => {
-    dispatch(updateItemAsync({ ...item, quantity: +e.target.value }));
+    dispatch(updateItemAsync({ id: item.id, quantity: +e.target.value }));
   };
 
   const handleRemove = (e, id) => {
-    dispatch(deleteItemFormCartAsync(id));
+    dispatch(deleteItemFromCartAsync(id));
   };
-
-
 
   return (
     <>
-    {status === "loading" ? (
-        <div className="flex relative items-center justify-center h-full w-full"><Circles
-          height="80"
-          width="80"
-          color="#00A9FF"
-          ariaLabel="circles-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        /></div>):null}
-    {!items.length && <Navigate to="/" replace={true} />}
+      {status === "loading" ? (
+        <div className="flex relative items-center justify-center h-full w-full">
+          <Circles
+            height="80"
+            width="80"
+            color="#00A9FF"
+            ariaLabel="circles-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        </div>
+      ) : null}
+      {!items.length && <Navigate to="/" replace={true} />}
       <div className="mx-auto mt-12 bg-white px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold tracking-tight text-gray-900">
           Cart
@@ -66,8 +76,8 @@ const Cart = ({useLink, handleOrder}) => {
                 <li key={item.id} className="flex py-9">
                   <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
-                      src={item.thumbnail}
-                      alt={item.title}
+                      src={item.product.thumbnail}
+                      alt={item.product.title}
                       className="h-full w-full object-cover object-center"
                     />
                   </div>
@@ -76,16 +86,19 @@ const Cart = ({useLink, handleOrder}) => {
                     <div>
                       <div className="flex justify-between text-base font-medium text-gray-900">
                         <h3>
-                          <a href={item.href}>{item.title}</a>
+                          <Link to={item.product.id}>{item.product.title}</Link>
                         </h3>
                         <p className="ml-4">
                           $
                           {Math.round(
-                            item.price * (1 - item.discountPercentage / 100)
+                            item.product.price *
+                              (1 - item.product.discountPercentage / 100)
                           )}
                         </p>
                       </div>
-                      <p className="mt-1 text-sm text-gray-500">{item.brand}</p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {item.product.brand}
+                      </p>
                     </div>
                     <div className="flex flex-1 items-end justify-between text-sm">
                       <p className="text-gray-500">
@@ -104,8 +117,19 @@ const Cart = ({useLink, handleOrder}) => {
                       </p>
 
                       <div className="flex">
+                        <Modal
+                          title={`Delete ${item.product.title}`}
+                          message="Are you sure you want to delete this Cart item ?"
+                          dangerOption="Delete"
+                          cancelOption="Cancel"
+                          dangerAction={(e) => handleRemove(e, item.id)}
+                          cancelAction={(e) => setOpenModal(null)}
+                          showModal={openModal === item.id}
+                        />
                         <button
-                          onClick={e=>{setOpenModal(item.id)}}
+                          onClick={() => {
+                            setOpenModal(item.id);
+                          }}
                           type="button"
                           className="font-medium text-indigo-600 hover:text-indigo-500"
                         >
@@ -134,15 +158,20 @@ const Cart = ({useLink, handleOrder}) => {
           </p>
           <div className="mt-6">
             {useLink ? (
-              <button onClick={handleOrder} className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 w-full py-3 text-base font-medium cursor-pointer text-white shadow-sm hover:bg-indigo-700">
+              <button
+                onClick={handleOrder}
+                className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 w-full py-3 text-base font-medium cursor-pointer text-white shadow-sm hover:bg-indigo-700"
+              >
                 Order Now
               </button>
-            ) : (<Link
-              to="/checkout"
-              className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-            >
-              Checkout
-            </Link>)}
+            ) : (
+              <Link
+                to="/checkout"
+                className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+              >
+                Checkout
+              </Link>
+            )}
           </div>
           <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
             <p>

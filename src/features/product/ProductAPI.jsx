@@ -3,7 +3,7 @@
 import axios from 'axios';
 export function fetchAllProducts() {
   return new Promise((resolve, reject) => {
-    fetch("http://localhost:8080/products")
+    axios.get("http://localhost:8080/products")
       .then((response) => response.json())
       .then((data) => resolve({ data }))
       .catch((error) => {
@@ -74,7 +74,7 @@ export function fetchBrands() {
 }
 
 export function fetchProductsByFilters(filter, sort, pagination) {
-  let queryString = " ";
+  let queryString = '';
   for (let key in filter) {
     const categoryValues = filter[key];
     if (categoryValues.length) {
@@ -91,13 +91,17 @@ export function fetchProductsByFilters(filter, sort, pagination) {
   }
   console.log(pagination);
 
+  if (queryString.endsWith('&')) {
+    queryString = queryString.slice(0, -1);
+  }
+
   return new Promise(async (resolve, reject) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/products?${queryString}`
+        'http://localhost:8080/products?'+queryString
       );
       const data = await response.json();
-      const totalItems = response.headers.get("X-Total-Count");
+      const totalItems = await response.headers.get("X-Total-Count");
       resolve({ data: { products: data, totalItems: +totalItems } });
     } catch (error) {
       console.error("Error fetching products by filters:", error);

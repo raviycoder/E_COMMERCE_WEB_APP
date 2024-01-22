@@ -1,8 +1,11 @@
 /* eslint-disable no-unused-vars */
+
+import { Bounce, toast } from "react-toastify";
+
 /* eslint-disable no-async-promise-executor */
 export function createUser(userData) {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/users", {
+    const response = await fetch("http://localhost:8080/auth/signup", {
       method: "POST",
       body: JSON.stringify(userData),
       headers: { "Content-Type": "application/json" },
@@ -14,26 +17,50 @@ export function createUser(userData) {
 
 export function checkUser(loginInfo) {
   return new Promise(async (resolve, reject) => {
-    const email = loginInfo.email;
-    const password = loginInfo.password;
-    const response = await fetch("http://localhost:8080/users?email=" + email);
-    const data = await response.json();
-    console.log({data})
-    if (data.length) {
-      if(password === data[0].password){
-        resolve({data:data[0]})
+    try {
+      const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        body: JSON.stringify(loginInfo),
+        headers: { "Content-Type": "application/json" },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        resolve({ data });
+        toast.success('Your Successfully Login', {
+          position: "top-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+          });
       } else {
-        reject({message: 'Wrong Credentials'})
+        const error = await response.json();
+        reject(error);
+        toast.error('If Your Not Signup, Please First Signup', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+          });
       }
-    } else {
-      reject({message: 'user not found'})
+    } catch (error) {
+      reject({ error });
     }
   });
 }
 
 export function signOut(userId) {
   return new Promise(async (resolve, reject) => {
-    resolve({data: 'success'})
+    resolve({ data: "success" });
   });
 }
 
