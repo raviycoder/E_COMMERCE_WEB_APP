@@ -6,12 +6,12 @@ import { FaPhone } from "react-icons/fa6";
 
 const UserOrder = () => {
   const dispatch = useDispatch();
-  const user = useSelector(selectUserInfo);
+  const userInfo = useSelector(selectUserInfo);
   const orders = useSelector(selectUserOrders);
 
   useEffect(() => {
-    dispatch(fetchLoggedInUserOrdersAsync(user.id));
-  }, [dispatch, user]);
+    dispatch(fetchLoggedInUserOrdersAsync(userInfo.id));
+  }, [dispatch, userInfo]);
   return (
     <div>
         <h1 className=" relative font-semibold text-center underline text-3xl top-4 underline-offset-2">Your Orders</h1>
@@ -32,8 +32,8 @@ const UserOrder = () => {
                     <li key={item.id} className="flex py-9">
                       <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                         <img
-                          src={item.thumbnail}
-                          alt={item.title}
+                          src={item.product.thumbnail}
+                          alt={item.product.title}
                           className="h-full w-full object-cover object-center"
                         />
                       </div>
@@ -42,17 +42,17 @@ const UserOrder = () => {
                         <div>
                           <div className="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              <a href={item.href}>{item.title}</a>
+                              <a href={item.product.id}>{item.product.title}</a>
                             </h3>
                             <p className="ml-4">
                               $
                               {Math.round(
-                                item.price * (1 - item.discountPercentage / 100)
+                                item.product.price * (1 - item.product.discountPercentage / 100)
                               )}
                             </p>
                           </div>
                           <p className="mt-1 text-sm text-gray-500">
-                            {item.brand}
+                            {item.product.brand}
                           </p>
                         </div>
                         <div className="flex flex-1 items-end justify-between text-sm">

@@ -6,7 +6,7 @@ import { FaPhone } from "react-icons/fa6";
 import { ImPencil } from "react-icons/im";
 import { TbTrashX } from "react-icons/tb";
 import { IoMdAdd } from "react-icons/io";
-import { updateUserAsync } from "../userSlice";
+import { selectUserInfo, updateUserAsync } from "../userSlice";
 import { useForm } from "react-hook-form";
 
 const UserProfile = () => {
@@ -18,24 +18,24 @@ const UserProfile = () => {
     formState: { errors },
     reset,
   } = useForm();
-  const user = useSelector(selectLoggedInUser);
+  const userInfo = useSelector(selectUserInfo);
   const [selectedEditIndex, setSelectedEditIndex] = useState(-1)
   const [showAddAddressForm, setShowAddAddressForm] = useState(false)
   const handleEdit = (addressUpdate, index) => {
-    const newUser = { ...user, addresses: [...user.addresses] };
+    const newUser = { ...userInfo, addresses: [...userInfo.addresses] };
     newUser.addresses.splice(index, 1, addressUpdate);
     dispatch(updateUserAsync(newUser));
     setSelectedEditIndex(-1)
   }
   const handleRemove = (e, index) => {
-    const newUser = { ...user, addresses: [...user.addresses] };
+    const newUser = { ...userInfo, addresses: [...userInfo.addresses] };
     newUser.addresses.splice(index, 1);
     dispatch(updateUserAsync(newUser));
     
   };
   const handleEditForm = async (index) => {
     setSelectedEditIndex(index)
-    const address = user.addresses[index]
+    const address = userInfo.addresses[index]
     setValue('name', address.name)
     setValue('email', address.email)
     setValue('city', address.city)
@@ -47,7 +47,7 @@ const UserProfile = () => {
   }
 
   const handleAdd = (address) => {
-    const newUser = {...user, addresses: [...user.addresses, address]};
+    const newUser = {...userInfo, addresses: [...userInfo.addresses, address]};
     dispatch(updateUserAsync(newUser));
     setShowAddAddressForm(false)
   }
@@ -63,7 +63,7 @@ const UserProfile = () => {
         <div className="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4 flex-row">
           <dt className="font-medium text-gray-900">Name</dt>
           <dd className="text-gray-700 sm:col-span-2 flex flex-row items-center">
-            {user.name ? user.name : "New User"}{" "}
+            {userInfo.name ? userInfo.name : "New User"}{" "}
             <button className="rounded-full hover:bg-gray-200 ml-2 p-3">
               <ImPencil />
             </button>
@@ -73,16 +73,16 @@ const UserProfile = () => {
         <div className="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4">
           <dt className="font-medium text-gray-900">Email</dt>
           <dd className="text-gray-700 sm:col-span-2 flex flex-row items-center">
-            {user.email}{" "}
+            {userInfo.email}{" "}
             <button className="rounded-full hover:bg-gray-200 ml-2 p-3">
               <ImPencil />
             </button>
           </dd>
         </div>
-        {user.role === 'admin' && <div className="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4">
+        {userInfo.role === 'admin' && <div className="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4">
           <dt className="font-medium text-gray-900">Role</dt>
           <dd className="text-gray-700 sm:col-span-2 flex flex-row items-center">
-            <p className=" capitalize">{user.role}</p>
+            <p className=" capitalize">{userInfo.role}</p>
           </dd>
         </div>}
 
@@ -290,7 +290,7 @@ const UserProfile = () => {
                 </div>) : null}
           </div>
           <dd className="text-gray-700 sm:col-span-2 grid grid-cols-2 gap-8 max-md:grid-cols-1">
-            {user.addresses.map((address, index) => (
+            {userInfo.addresses.map((address, index) => (
               <>
                 {selectedEditIndex === index ? (<div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-white/30 duration-300 ease-in-out">
                   {" "}

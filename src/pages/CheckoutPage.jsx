@@ -5,7 +5,7 @@ import { FaPhone } from "react-icons/fa6";
 import Cart from "../features/cart/Cart";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLoggedInUser, updateUserAsync } from "../features/auth/authSlice";
+import { selectLoggedInUser } from "../features/auth/authSlice";
 import { useState } from "react";
 import {
   createOrderAsync,
@@ -14,6 +14,7 @@ import {
 } from "../features/order/orderSlice";
 import { selectItems } from "../features/cart/cartSlice";
 import { Circles } from "react-loader-spinner";
+import { updateUserAsync } from "../features/user/userSlice";
 
 const CheckoutPage = () => {
   const items = useSelector(selectItems);
@@ -22,7 +23,7 @@ const CheckoutPage = () => {
 
   const totalAmount = items.reduce(
     (amount, item) =>
-      Math.round(item.price * (1 - item.discountPercentage / 100)) *
+      Math.round(item.product.price * (1 - item.product.discountPercentage / 100)) *
         item.quantity +
       amount,
     0
