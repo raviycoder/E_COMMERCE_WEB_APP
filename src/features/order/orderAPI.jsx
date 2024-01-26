@@ -23,7 +23,7 @@ export function updateOrder(order) {
   });
 }
 
-export function fetchAllOrders({sort, pagination}) {
+export function fetchAllOrders(sort, pagination) {
   let queryString = "";
   for (let key in sort) {
     queryString += `${key}=${sort[key]}&`;

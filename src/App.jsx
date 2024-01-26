@@ -17,7 +17,7 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import Protected from "./features/auth/components/Protected";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchItemsByUserIdAsync } from "./features/cart/cartSlice";
-import { selectLoggedInUser } from "./features/auth/authSlice";
+import { checkAuthAsync, selectLoggedInUser, selectUserChecked } from "./features/auth/authSlice";
 import NotFoundPage from "./pages/NotFoundPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import UserOrdersPage from "./pages/UserOrdersPage";
@@ -35,15 +35,20 @@ import AdminOrdersPage from "./pages/AdminOrdersPage";
 function App() {
   const dispatch = useDispatch();
   const user = useSelector(selectLoggedInUser);
+  const userChecked = useSelector(selectUserChecked)
+
+  useEffect(()=> {
+    dispatch(checkAuthAsync())
+  }, [dispatch])
   useEffect(() => {
     if (user) {
-      dispatch(fetchItemsByUserIdAsync(user.id));
-      dispatch(fetchLoggedInUserAsync(user.id));
+      dispatch(fetchItemsByUserIdAsync());
+      dispatch(fetchLoggedInUserAsync());
     }
   }, [dispatch, user]);
   return (
     <>
-      <Router>
+      { userChecked && <Router>
         <Routes>
           <Route
             path="/checkout"
@@ -155,7 +160,7 @@ function App() {
             }
           />
         </Routes>
-      </Router>
+      </Router>}
     </>
   );
 }

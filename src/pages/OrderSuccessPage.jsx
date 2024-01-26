@@ -12,11 +12,10 @@ const OrderSuccessPage = () => {
   const params = useParams();
   const status = useSelector(selectOrderStatus)
   const dispatch = useDispatch()
-  const user = useSelector(selectLoggedInUser)
   useEffect(() => {
-    dispatch(resetCartAsync(user.id))
+    dispatch(resetCartAsync())
     dispatch(resetOrder())
-  }, [dispatch, user])
+  }, [dispatch])
   return (
     <>
     {status === "loading" ? (

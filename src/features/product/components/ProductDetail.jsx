@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllProductByIdAsync, selectedProductById } from "../productSlice";
 import { useParams } from "react-router-dom";
 import { addToCartAsync, selectItems } from "../../cart/cartSlice";
-import { selectLoggedInUser } from "../../auth/authSlice";
+import { MdProductionQuantityLimits } from "react-icons/md";
 
 const colors = [
   { name: "White", class: "bg-white", selectedClass: "ring-gray-400" },
@@ -39,7 +39,6 @@ export default function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [selectedSize, setSelectedSize] = useState(sizes[2]);
   const items = useSelector(selectItems)
-  const user = useSelector(selectLoggedInUser);
   const product = useSelector(selectedProductById);
   const dispatch = useDispatch();
   const params = useParams();
@@ -49,8 +48,7 @@ export default function ProductDetail() {
     if (items.findIndex((item) => item.product.id === product.id) < 0) {
       const newItem = {
         product: product.id,
-        quantity: 1,
-        user: user.id,
+        quantity: 1
       };
       dispatch(addToCartAsync(newItem));
       toast.info('🛒 Product added in Cart', {
@@ -333,13 +331,19 @@ export default function ProductDetail() {
                   </RadioGroup>
                 </div>
 
-                <button
+                {product.stock <= 0 ? (
+                      <div className="mt-3 text-center p-1">
+                        <span className="inline-flex items-center justify-center rounded-full bg-red-100 px-2.5 py-1 text-red-700">
+                          <MdProductionQuantityLimits className=" text-red-700 text-4xl mr-1"/>
+                          <p className="whitespace-nowrap text-3xl">Out of Stock</p>
+                        </span>
+                      </div>):<button
                   onClick={handleCart}
                   type="submit"
                   className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   Add to Cart
-                </button>
+                </button>}
               </form>
             </div>
 

@@ -14,12 +14,12 @@ import {
 } from "../features/order/orderSlice";
 import { selectItems } from "../features/cart/cartSlice";
 import { Circles } from "react-loader-spinner";
-import { updateUserAsync } from "../features/user/userSlice";
+import { selectUserInfo, updateUserAsync } from "../features/user/userSlice";
 
 const CheckoutPage = () => {
   const items = useSelector(selectItems);
   const currentOrder = useSelector(selectCurrentOrder);
-  const user = useSelector(selectLoggedInUser);
+  const userInfo = useSelector(selectUserInfo);
 
   const totalAmount = items.reduce(
     (amount, item) =>
@@ -42,7 +42,7 @@ const CheckoutPage = () => {
 
   const handleAddress = (e) => {
     console.log(e.target.value);
-    setSelectedAddress(user.addresses[e.target.value]);
+    setSelectedAddress(userInfo.addresses[e.target.value]);
   };
 
   const handlePayment = (e) => {
@@ -58,7 +58,7 @@ const CheckoutPage = () => {
         items,
         totalAmount,
         totalItems,
-        user:user.id,
+        user:userInfo.id,
         paymentMethod,
         selectedAddress,
         status: "pending",
@@ -104,8 +104,8 @@ const CheckoutPage = () => {
               onSubmit={handleSubmit((data) => {
                 dispatch(
                   updateUserAsync({
-                    ...user,
-                    addresses: [...user.addresses, data],
+                    ...userInfo,
+                    addresses: [...userInfo.addresses, data],
                   })
                 );
                 reset();
@@ -323,7 +323,7 @@ const CheckoutPage = () => {
                     Choose from existing Address
                   </p>
                   <ul role="list" className="divide-y divide-gray-100">
-                    {user.addresses.map((address, index) => (
+                    {userInfo.addresses.map((address, index) => (
                       <li
                         key={index}
                         className="flex justify-between cursor-pointer gap-x-6 py-5"

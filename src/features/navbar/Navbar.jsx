@@ -11,6 +11,7 @@ import {
 import { useSelector } from "react-redux";
 import { selectItems } from "../cart/cartSlice";
 import { selectLoggedInUser } from "../auth/authSlice";
+import { selectUserInfo } from "../user/userSlice";
 
 const navigation = [
   { name: "Dashboard", to: "#", user: true },
@@ -26,9 +27,10 @@ function classNames(...classes) {
 
 const Navbar = () => {
   const itmes = useSelector(selectItems);
-  const user = useSelector(selectLoggedInUser);
+  const userInfo = useSelector(selectUserInfo);
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <>
+    {userInfo && <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -49,7 +51,7 @@ const Navbar = () => {
                 <div className="hidden sm:ml-6 md:block">
                   <div className="flex space-x-4">
                     {navigation.map((item) =>
-                      item[user.role] ? (
+                      item[userInfo.role] ? (
                         <Link
                           key={item.name}
                           to={item.to}
@@ -227,7 +229,8 @@ const Navbar = () => {
           </Disclosure.Panel>
         </>
       )}
-    </Disclosure>
+    </Disclosure>}
+    </>
   );
 };
 

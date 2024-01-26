@@ -15,7 +15,7 @@ export function createUser(userData) {
   });
 }
 
-export function checkUser(loginInfo) {
+export function loginUser(loginInfo) {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await fetch("http://localhost:8080/auth/login", {
@@ -26,8 +26,8 @@ export function checkUser(loginInfo) {
       if (response.ok) {
         const data = await response.json();
         resolve({ data });
-        toast.success('Your Successfully Login', {
-          position: "top-left",
+        toast.success("Your Successfully Login", {
+          position: "bottom-left",
           autoClose: 2000,
           hideProgressBar: false,
           closeOnClick: true,
@@ -36,11 +36,11 @@ export function checkUser(loginInfo) {
           progress: undefined,
           theme: "colored",
           transition: Bounce,
-          });
+        });
       } else {
-        const error = await response.json();
+        const error = await response.text();
         reject(error);
-        toast.error('If Your Not Signup, Please First Signup', {
+        toast.error("If Your Not Signup, Please First Signup", {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -50,10 +50,27 @@ export function checkUser(loginInfo) {
           progress: undefined,
           theme: "colored",
           transition: Bounce,
-          });
+        });
       }
     } catch (error) {
-      reject({ error });
+      reject(error);
+    }
+  });
+}
+
+export function checkAuth() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await fetch("http://localhost:8080/auth/check");
+      if (response.ok) {
+        const data = await response.json();
+        resolve({ data });
+      } else {
+        const error = await response.text();
+        reject(error);
+      }
+    } catch (error) {
+      reject(error);
     }
   });
 }

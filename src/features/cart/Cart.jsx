@@ -7,6 +7,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteItemFromCartAsync,
+  selectCartLoaded,
   selectItems,
   selectItemsStatus,
   updateItemAsync,
@@ -16,6 +17,7 @@ import Modal from "../common/Modal";
 
 const Cart = ({ useLink, handleOrder }) => {
   const dispatch = useDispatch();
+  const cartLoaded = useSelector(selectCartLoaded)
   const [open, setOpen] = useState(true);
   // todo : make this discountable price
   const items = useSelector(selectItems);
@@ -64,7 +66,7 @@ const Cart = ({ useLink, handleOrder }) => {
           />
         </div>
       ) : null}
-      {!items.length && <Navigate to="/" replace={true} />}
+      {!items.length && cartLoaded && <Navigate to="/" replace={true} />}
       <div className="mx-auto mt-12 bg-white px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold tracking-tight text-gray-900">
           Cart

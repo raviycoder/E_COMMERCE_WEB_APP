@@ -39,7 +39,7 @@ const AdminOrders = () => {
       case "dispatched":
         return "bg-yellow-200 text-yellow-600";
       case "delivered":
-        return "bg-green-200 text-green-600";
+        return "text-lime-700 bg-lime-300";
       case "cancelled":
         return "bg-red-200 text-red-600";
       default:
@@ -50,22 +50,22 @@ const AdminOrders = () => {
   const handlePage = (page) => {
     setPage(page);
   };
-// find the why this is not sorting numbers
+  // find the why this is not sorting numbers
   const handleSort = (sortOption) => {
     const sort = { _sort: sortOption.sort, _order: sortOption.order };
     console.log({ sort });
     setSort(sort);
   };
 
-  const handleUpdate = ({ e, order }) => {
+  const handleUpdate = ({e, order}) => {
     const updatedOrder = { ...order, status: e.target.value };
     dispatch(updateOrderAsync(updatedOrder));
     setEditableOrderId(-1);
   };
   useEffect(() => {
     const pagination = { _page: page, _limit: ITEMS_PER_PAGE };
-    dispatch(fetchAllOrdersAsync(pagination));
-  }, [dispatch, page]);
+    dispatch(fetchAllOrdersAsync({ sort, pagination }));
+  }, [dispatch, page, sort]);
   return (
     <>
       <div className="flex flex-wrap -mx-3 mb-5">
@@ -86,14 +86,20 @@ const AdminOrders = () => {
                   <button
                     onClick={(e) =>
                       handleSort({
-                        sort: "id",
-                        order: sort?._order == `asc` ? `desc` : `asc`,
+                        sort: "_id",
+                        order: sort?._order === "asc" ? "desc" : "asc",
                       })
                     }
                     className="inline-block text-[.925rem] font-medium leading-normal text-center align-middle cursor-pointer rounded-2xl transition-colors duration-150 ease-in-out text-light-inverse bg-light-dark border-light shadow-none border-0 py-2 px-5 hover:bg-secondary active:bg-light focus:bg-light"
                   >
                     {" "}
-                    Sort Orders{" "}{sort._sort === 'id' && (sort._order === 'asc' ? (<ArrowUpIcon className="w-4 h-4 inline" />): <ArrowDownIcon className="w-4 h-4 inline justify-center" />)}
+                    Sort Orders{" "}
+                    {sort._sort === "_id" &&
+                      (sort._order === "asc" ? (
+                        <ArrowUpIcon className="w-4 h-4 inline" />
+                      ) : (
+                        <ArrowDownIcon className="w-4 h-4 inline justify-center" />
+                      ))}
                   </button>
                 </div>
               </div>
@@ -109,10 +115,25 @@ const AdminOrders = () => {
                         </th>
                         <th className="pb-3 text-start min-w-[100px]">Items</th>
                         <th className="pb-3 relative text-start min-w-[100px] max-lg:left-14">
-                          Address and Name
+                            Address and Name
                         </th>
                         <th className="pb-3 pr-12 text-start min-w-[100px] ">
-                          Total Amount
+                        <button
+                            onClick={(e) =>
+                              handleSort({
+                                sort: "totalAmount",
+                                order: sort?._order === "asc" ? "desc" : "asc",
+                              })
+                            }
+                          >
+                          Total Amount{" "}
+                            {sort._sort === "totalAmount" &&
+                              (sort._order === "asc" ? (
+                                <ArrowUpIcon className="w-4 h-4 inline"></ArrowUpIcon>
+                              ) : (
+                                <ArrowDownIcon className="w-4 h-4 inline"></ArrowDownIcon>
+                              ))}
+                              </button>
                         </th>
                         <th className="pb-3 pr-12 text-left min-w-[50px]">
                           Status
@@ -126,30 +147,30 @@ const AdminOrders = () => {
                       {orders.map((order) => (
                         <tr className="border-b border-dashed justify-evenly last:border-b-0">
                           <td className="p-3 pr-0 text-start">
-                            <span className="font-semibold text-3xl text-light-inverse text-md/normal">
+                            <span className="font-semibold text-sm text-light-inverse text-md/normal">
                               {order.id}
                             </span>
                           </td>
-                          {order.items.map((item) => (
-                            <td className="py-3 pl-0 flex flex-col">
+                          {order.items.map((item, index) => (
+                            <td key={index} className="py-3 pl-0 flex flex-col">
                               <div className="flex flex-row">
                                 <div className="relative inline-block shrink-0 rounded-2xl me-3">
                                   <img
-                                    src={item.thumbnail}
+                                    src={item.product.thumbnail}
+                                    alt={item.product.title}
                                     className="w-[50px] h-[50px] inline-block shrink-0 rounded-2xl"
-                                    alt="title"
                                   />
                                 </div>
                                 <div className="flex flex-col justify-start">
                                   <span className="mb-1 font-semibold transition-colors duration-200 ease-in-out text-lg/normal text-secondary-inverse hover:text-primary pr-2">
                                     {" "}
-                                    {item.title} <br />
+                                    {item.product.title} <br />
                                     <span className="flex flex-row space-x-2">
                                       <p className="text-sm font-normal">
                                         ({item.quantity} items)
                                       </p>
                                       <p className="text-sm">
-                                        ${discountPrice(item)}
+                                        ${discountPrice(item.product)}
                                       </p>
                                     </span>
                                   </span>
@@ -190,9 +211,7 @@ const AdminOrders = () => {
                               </select>
                             ) : (
                               <span
-                                className={`text-center align-baseline ${chooseColor(
-                                  order.status
-                                )} inline-flex px-2 py-1 mr-auto items-center font-semibold text-base/nonewhitespace-nowrap rounded-full bg-red-100 text-sm text-red-700 capitalize`}
+                                className={`${chooseColor(order.status)} text-center align-baseline inline-flex px-2 py-1 mr-auto items-center font-semibold text-base/nonewhitespace-nowrap rounded-full text-sm capitalize`}
                               >
                                 {" "}
                                 {order.status}

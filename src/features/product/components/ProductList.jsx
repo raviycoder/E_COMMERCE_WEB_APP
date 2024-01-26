@@ -7,6 +7,7 @@ import { ITEMS_PER_PAGE } from "../../../app/constants";
 import { Fragment, useState } from "react";
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import { FaStar } from "react-icons/fa";
+import { MdProductionQuantityLimits } from "react-icons/md";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -21,7 +22,6 @@ import {
 } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
 import {
-  fetchAllProductsAsync,
   fetchBrandsAsync,
   fetchCategoriesAsync,
   fetchProductsByFiltersAsync,
@@ -92,7 +92,7 @@ const ProductList = () => {
   };
 
   const handleSort = (e, option) => {
-    console.log("this is a sort")
+    console.log("this is a sort");
     const sort = { _sort: option.sort, _order: option.order };
     console.log({ sort });
     setSort(sort);
@@ -171,9 +171,7 @@ const ProductList = () => {
                         <Menu.Item key={option.name}>
                           {({ active }) => (
                             <p
-                              onClick={(e) =>
-                                handleSort(e, option)
-                              }
+                              onClick={(e) => handleSort(e, option)}
                               className={
                                 (option.current
                                   ? "font-medium text-gray-900"
@@ -291,7 +289,6 @@ function MobileFilter({
 
                 {/* Filters */}
                 <form className="mt-4 border-t border-gray-200">
-
                   {filters.map((section) => (
                     <Disclosure
                       as="div"
@@ -333,7 +330,9 @@ function MobileFilter({
                                     defaultValue={option.value}
                                     type="checkbox"
                                     defaultChecked={option.checked}
-                                    onChange={(e)=>handleFilter(e, section, option)}
+                                    onChange={(e) =>
+                                      handleFilter(e, section, option)
+                                    }
                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                   />
                                   <label
@@ -495,19 +494,20 @@ function ProductGrid({ products }) {
   const status = useSelector(selectProductListStatus);
   return (
     <>
-    {status === "loading" ? (
-        <div className="flex relative items-center justify-center h-full w-full lg:left-[300px] "><Circles
-          height="80"
-          width="80"
-          color="#00A9FF"
-          ariaLabel="circles-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        /></div>
-        
+      {status === "loading" ? (
+        <div className="flex relative items-center justify-center h-full w-full lg:left-[300px] ">
+          <Circles
+            height="80"
+            width="80"
+            color="#00A9FF"
+            ariaLabel="circles-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        </div>
       ) : null}
-      
+
       <div className="lg:col-span-3">
         <div className="bg-white">
           <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-0 lg:max-w-7xl lg:px-8">
@@ -545,25 +545,34 @@ function ProductGrid({ products }) {
                         {product.rating}
                       </p>
                     </div>
-                    <div className="flex flex-col">
-                      <p className="text-sm font-medium text-gray-900">
-                        $
-                        {Math.round(
-                          product.price * (1 - product.discountPercentage / 100)
-                        )}
-                      </p>
-                      <p className="text-xs font-medium text-gray-600 line-through">
-                        ${product.price}
-                      </p>
-                    </div>
+                    {product.stock <= 0 ? (
+                      <div>
+                        <span className="inline-flex items-center justify-center rounded-full bg-red-100 px-2.5 py-0.5 text-red-700">
+                          <MdProductionQuantityLimits className=" text-red-700 text-xl mr-1"/>
+                          <p className="whitespace-nowrap text-sm">Out of Stock</p>
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        {" "}
+                        <div className="flex flex-col">
+                          <p className="text-sm font-medium text-gray-900">
+                            $
+                            {Math.round(
+                              product.price *
+                                (1 - product.discountPercentage / 100)
+                            )}
+                          </p>
+                          <p className="text-xs font-medium text-gray-600 line-through">
+                            ${product.price}
+                          </p>
+                        </div>
+                      </>
+                    )}
+
                     {product.deleted && (
                       <div>
                         <p className="text-sm text-red-400">Product Deleted</p>
-                      </div>
-                    )}
-                    {product.stock <= 0 && (
-                      <div>
-                        <p className="text-sm text-red-400">out of stock</p>
                       </div>
                     )}
                   </div>

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import { Link, Navigate } from "react-router-dom";
-import { checkUserAsync, selectError, selectLoggedInUser } from "../authSlice";
+import { loginUserAsync, selectError, selectLoggedInUser } from "../authSlice";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { Bounce, toast } from "react-toastify";
@@ -28,7 +28,7 @@ const Login = () => {
             noValidate
             onSubmit={handleSubmit((data) => {
               dispatch(
-                checkUserAsync({ email: data.email, password: data.password }),
+                loginUserAsync({ email: data.email, password: data.password }),
                 console.log(data)
               );
             })}
@@ -93,7 +93,11 @@ const Login = () => {
                 <p className="text-red-500">{errors.password.message}</p>
               )}
             </div>
-            {error && (<div><p className="text-red-500">{error.message}</p></div>)}
+            {error && (
+              <div>
+                <p className="text-red-500">{error || error.message}</p>
+              </div>
+            )}
             <div>
               <button
                 type="submit"

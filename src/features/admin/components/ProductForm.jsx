@@ -15,12 +15,14 @@ import {
   updateProductAsync,
 } from "../../product/productSlice";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Modal from "../../common/Modal";
+import { Bounce, toast } from "react-toastify";
 
 const ProductForm = () => {
   const dispatch = useDispatch();
-  const [openModal, setOpenModal] = useState(null)
+  const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(null);
   const {
     register,
     handleSubmit,
@@ -33,30 +35,31 @@ const ProductForm = () => {
   const categories = useSelector(selectCategories);
 
   const params = useParams();
-
   useEffect(() => {
     if (params.id) {
       dispatch(fetchAllProductByIdAsync(params.id));
     } else {
       dispatch(clearSelectedProduct());
     }
-  }, [dispatch, params.id]);
-
+  }, [params.id, dispatch]);
   useEffect(() => {
-    if (selectedProduct && params.id) {
-      setValue("title", selectedProduct.title);
-      setValue("description", selectedProduct.description);
-      setValue("price", selectedProduct.price);
-      setValue("brand", selectedProduct.brand);
-      setValue("category", selectedProduct.category);
-      setValue("stock", selectedProduct.stock);
-      setValue("discountPercentage", selectedProduct.discountPercentage);
-      setValue("thumbnail", selectedProduct.thumbnail);
-      setValue("image1", selectedProduct.images[0]);
-      setValue("image2", selectedProduct.images[1]);
-      setValue("image3", selectedProduct.images[2]);
-      setValue("image4", selectedProduct.images[3]);
-    }
+    const fetchData = async () => {
+      if (selectedProduct && params.id) {
+        setValue("title", selectedProduct.title);
+        setValue("description", selectedProduct.description);
+        setValue("price", selectedProduct.price);
+        setValue("brand", selectedProduct.brand);
+        setValue("category", selectedProduct.category);
+        setValue("stock", selectedProduct.stock);
+        setValue("discountPercentage", selectedProduct.discountPercentage);
+        setValue("thumbnail", selectedProduct.thumbnail);
+        setValue("image1", selectedProduct.images[0]);
+        setValue("image2", selectedProduct.images[1]);
+        setValue("image3", selectedProduct.images[2]);
+        setValue("image4", selectedProduct.images[3]);
+      }
+    };
+    fetchData();
   }, [selectedProduct, setValue, params.id]);
 
   const handleDelete = () => {
@@ -64,45 +67,78 @@ const ProductForm = () => {
     product.deleted = true;
     dispatch(updateProductAsync(product));
   };
+
+  const handleCreateProduct = (data) => {
+    const product = prepareProductData(data);
+    dispatch(createProductAsync(product));
+    resetFormAndNotify('Product Successfully Created');
+  };
+
+  const handleUpdateProduct = (data) => {
+    const product = prepareProductData(data);
+    product.id = params.id;
+    product.rating = selectedProduct.rating || 0;
+    dispatch(updateProductAsync(product));
+    resetFormAndNotify('Product Successfully Updated');
+  };
+
+  const resetFormAndNotify = (message) => {
+    reset();
+    toast.info(message, {
+      position: "top-left",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Bounce,
+    });
+    navigate('/admin');
+  };
+
+  const prepareProductData = (data) => {
+    const product = { ...data };
+    product.images = [data.image1, data.image2, data.image3, data.image4];
+    delete product['image1'];
+    delete product['image2'];
+    delete product['image3'];
+    delete product['image4'];
+    product.price = +data.price;
+    product.discountPercentage = +data.discountPercentage;
+    product.stock = +data.stock;
+    return product;
+  };
+
+
   return (
     <>
       <form
         noValidate
         onSubmit={handleSubmit((data) => {
-          const product = { ...data };
-          product.images = [
-            product.image1,
-            product.image2,
-            product.image3,
-            product.image4,
-          ];
-          product.rating = 0;
-          delete product["image1"];
-          delete product["image2"];
-          delete product["image3"];
-          delete product["image4"];
-          product.price = +product.price;
-          product.discountPercentage = +product.discountPercentage;
-          product.stock = +product.stock;
-          console.log(product);
-          dispatch(createProductAsync(product));
           if (params.id) {
-            product.id = params.id;
-            product.rating = product.selectedProduct || 0;
-            dispatch(updateProductAsync(product));
-            reset();
+            handleUpdateProduct(data);
           } else {
-            dispatch(createProductAsync(product));
+            handleCreateProduct(data);
           }
         })}
       >
         <div className="space-y-12 p-4 mx-24 max-md:mx-0">
           <div className="border-b border-gray-900/10 pb-12">
-            {!selectedProduct.deleted && <h2 className="text-base font-semibold leading-7 text-gray-900">
-              {selectedProduct ?"Modify Product":"Add New Product"}
-            </h2>}
+            {!selectedProduct?.deleted && (
+              <h2 className="text-base font-semibold leading-7 text-gray-900">
+                {selectedProduct ? "Modify Product" : "Add New Product"}
+              </h2>
+            )}
 
-              {selectedProduct.deleted &&<div className="py-3 inline-flex -mb-24"><h2 className="text-red-500"><FiAlertCircle /> This Product is Deleted</h2></div>}
+            {selectedProduct && selectedProduct.deleted && (
+              <div className="py-3 inline-flex -mb-24">
+                <h2 className="text-red-500">
+                  <FiAlertCircle /> This Product is Deleted
+                </h2>
+              </div>
+            )}
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
               <div className="sm:col-span-4">
@@ -214,7 +250,7 @@ const ProductForm = () => {
                           {...register("stock", {
                             required:
                               "Product Stock is Required You have more then 50 in stock products",
-                            min: 50,
+                            min: 0,
                           })}
                           type="number"
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -562,13 +598,16 @@ const ProductForm = () => {
         <div className="mt-6 flex items-center justify-end gap-x-6 p-3">
           <button
             type="button"
+            onClick={() => navigate("/admin")}
             className="text-sm font-semibold leading-6 text-gray-900"
           >
             Cancel
           </button>
           {selectedProduct && !selectedProduct.deleted && (
             <button
-              onClick={(e)=>{e.preventDefault(), setOpenModal(true)}}
+              onClick={(e) => {
+                e.preventDefault(), setOpenModal(true);
+              }}
               className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
             >
               Delete
@@ -582,15 +621,6 @@ const ProductForm = () => {
           </button>
         </div>
       </form>
-      <Modal
-        title={`Delete from E-commerce`}
-        message="Are you sure you want to delete this Product ?"
-        showModal={openModal}
-        dangerOption="Delete"
-        cancelOption="Cancel"
-        cancelAction={() => setOpenModal(null)}
-        dangerAction={handleDelete}
-      />
     </>
   );
 };
