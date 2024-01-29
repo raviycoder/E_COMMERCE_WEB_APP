@@ -31,6 +31,7 @@ import AdminProductDetailPage from "./pages/AdminProductDetailPage";
 import Copy from "./features/admin/components/ProductForm";
 import AdminProductFormPage from "./pages/AdminProductFormPage";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
+import StripeCheckout from "./pages/StripeCheckoutPage";
 
 function App() {
   const dispatch = useDispatch();

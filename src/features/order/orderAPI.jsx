@@ -1,3 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+import { useSelector } from "react-redux";
+import { selectCurrentOrder } from "./orderSlice";
+
 /* eslint-disable no-async-promise-executor */
 export function createOrder(order) {
   return new Promise(async (resolve) => {
@@ -37,4 +41,22 @@ export function fetchAllOrders(sort, pagination) {
     const totalOrders = await response.headers.get("X-Total-Count");
     resolve({ data: { orders: data, totalOrders: +totalOrders } });
   });
+}
+
+export const checkout = async () => {
+  const currentOrder = useSelector(selectCurrentOrder)
+  try {
+    const res = await fetch("http://localhost:8080/stripe-checkout", {
+      method: 'POST',
+      headers:{
+        "Content-Type":"application/json",
+      },
+      mode:"cors",
+      body:JSON.stringify({ totalAmount: currentOrder.totalAmount})
+    })
+    const data = await res.json()
+    window.location=data.url
+  } catch (error) {
+    console.log(error)
+  }
 }

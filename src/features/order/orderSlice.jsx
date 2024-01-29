@@ -1,4 +1,4 @@
-import { createOrder, fetchAllOrders, updateOrder } from "./orderAPI";
+import { createOrder, fetchAllOrders, updateOrder, checkout } from "./orderAPI";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -32,6 +32,14 @@ export const fetchAllOrdersAsync = createAsyncThunk(
   }
 );
 
+export const checkoutAsync = createAsyncThunk(
+  "order/checkout",
+  async (totalAmount) => {
+    const response = await checkout(totalAmount);
+    return response.data;
+  }
+);
+
 export const orderSlice = createSlice({
   name: "order",
   initialState,
@@ -51,6 +59,17 @@ export const orderSlice = createSlice({
         state.currentOrder = action.payload;
       })
       .addCase(createOrderAsync.rejected, (state, action) => {
+        state.status = "idle";
+        state.error = action.error;
+      })
+      .addCase(checkoutAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(checkoutAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.totalAmount = action.payload
+      })
+      .addCase(checkoutAsync.rejected, (state, action) => {
         state.status = "idle";
         state.error = action.error;
       })

@@ -1,6 +1,8 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unescaped-entities */
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { FaPhone } from "react-icons/fa6";
 import Cart from "../features/cart/Cart";
 import { useForm } from "react-hook-form";
@@ -8,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectLoggedInUser } from "../features/auth/authSlice";
 import { useState } from "react";
 import {
+  checkoutAsync,
   createOrderAsync,
   selectCurrentOrder,
   selectOrderStatus,
@@ -15,6 +18,7 @@ import {
 import { selectItems } from "../features/cart/cartSlice";
 import { Circles } from "react-loader-spinner";
 import { selectUserInfo, updateUserAsync } from "../features/user/userSlice";
+import { loadStripe } from "@stripe/stripe-js";
 
 const CheckoutPage = () => {
   const items = useSelector(selectItems);
@@ -31,6 +35,7 @@ const CheckoutPage = () => {
   const totalItems = items.reduce((total, item) => item.quantity + total, 0);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -52,25 +57,52 @@ const CheckoutPage = () => {
 
   const status = useSelector(selectOrderStatus);
 
-  const handleOrder = (e) => {
+  const handleOrder = async (e) => {
     if (selectedAddress && paymentMethod) {
       const order = {
         items,
         totalAmount,
         totalItems,
-        user:userInfo.id,
+        user: userInfo.id,
         paymentMethod,
         selectedAddress,
         status: "pending",
       };
+  
       // TODO: Redirect to order-success page
-      //TODO: clear cart after order
-      //TODO: on server change the stock number of items
+      // TODO: Clear cart after order
+      // TODO: On the server, change the stock number of items
       dispatch(createOrderAsync(order));
+      console.log('currentOrder', currentOrder);
+  
+      const stripe = await loadStripe('pk_test_51OcnfMSFvOlLTXTuxD6UxqppcdyTlB9VZVytaoJUNP1xeDZQL3xbn4NbcTa3Y7QyWNo5BOMouBCUiuI8kqoOoh1k00CNGOhkju');
+  
+      try {
+        const response = await axios.post('http://localhost:8080/api/create-checkout-session', {orders:currentOrder, meta:{order_id:currentOrder.id}}); 
+  
+        if (response.status === 200) {
+          // Extract JSON from the response
+          const session = response.data;
+  
+          // Use the session ID to redirect to checkout
+          const result = await stripe.redirectToCheckout({
+            sessionId: session.sessionId,
+          });
+  
+          if (result.error) {
+            console.error(result.error);
+          }
+        } else {
+          console.error('Error fetching session data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error.message);
+      }
     } else {
       alert("Enter Address and Payment method");
     }
   };
+  
   return (
     <>
       {status === "loading" ? (
@@ -86,9 +118,12 @@ const CheckoutPage = () => {
           />
         </div>
       ) : null}
-      {currentOrder && (
+      {currentOrder && currentOrder.paymentMethod === 'cash' && (
         <Navigate to={`/success/${currentOrder.id}`} replace={true} />
       )}
+      {/* {currentOrder && currentOrder.paymentMethod === 'card' && (
+        <Navigate to={`/stripe-checkout`} replace={true} />
+      )} */}
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <h1 className="text-3xl relative -right-[21px] font-bold mt-2">
           Personal Information
@@ -101,6 +136,7 @@ const CheckoutPage = () => {
           <div className="lg:col-span-3">
             <form
               noValidate
+              action="/api/create-checkout-session" method="POST"
               onSubmit={handleSubmit((data) => {
                 dispatch(
                   updateUserAsync({
