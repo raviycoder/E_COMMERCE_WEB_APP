@@ -18,7 +18,6 @@ import {
   FunnelIcon,
   MinusIcon,
   PlusIcon,
-  Squares2X2Icon,
 } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
 import {
@@ -33,6 +32,7 @@ import {
 } from "../productSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Circles } from "react-loader-spinner";
+import PriceFilter from "../../common/PriceFilter";
 
 const sortOptions = [
   { name: "Best Rating", sort: "rating", order: "desc", current: false },
@@ -51,11 +51,16 @@ const sortOptions = [
 const ProductList = () => {
   const dispatch = useDispatch();
   const products = useSelector(selectAllProducts);
+  const maxPrice = Math.max(...products.map((product) => product.price));
+  const [range, setRange] = useState([0, 2060]);
   const status = useSelector(selectProductListStatus);
   const brands = useSelector(selectBrands);
   const categories = useSelector(selectCategories);
   const totalItems = useSelector(selectTotalItems);
-  const [filter, setFilter] = useState({});
+  const [isConditonTrue, setCondition] = useState(false);
+  const [checkbox, setCheckbox] = useState(false);
+  const [radioSelected, setRadioSelected] = useState(true);
+  const [filter, setFilter] = useState([]);
   const [sort, setSort] = useState({});
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -72,10 +77,20 @@ const ProductList = () => {
     },
   ];
 
+  const handleRadioChange = () => {
+    setRadioSelected(true);
+    setCheckbox(false);
+    setFilter({
+      category: [],
+      brand: [],
+    });
+  };
+
   const handleFilter = (e, section, option) => {
-    console.log(e.target.checked);
+    console.log("condition", e.target.checked);
     const newFilter = { ...filter };
     if (e.target.checked) {
+      setRadioSelected(isConditonTrue);
       if (newFilter[section.id]) {
         newFilter[section.id].push(option.value);
       } else {
@@ -87,8 +102,12 @@ const ProductList = () => {
       );
       newFilter[section.id].splice(index, 1);
     }
+    const Uncheckedtrue = Object.values(newFilter).every(
+      (checkboxes) => checkboxes.length === 0
+    );
     console.log({ newFilter });
     setFilter(newFilter);
+    setRadioSelected(Uncheckedtrue);
   };
 
   const handleSort = (e, option) => {
@@ -105,8 +124,11 @@ const ProductList = () => {
 
   useEffect(() => {
     const pagination = { _page: page, _limit: ITEMS_PER_PAGE };
-    dispatch(fetchProductsByFiltersAsync({ filter, sort, pagination }));
-  }, [dispatch, filter, sort, page]);
+    const itemprice = { minPrice: range[0], maxPrice: range[1] };
+    dispatch(
+      fetchProductsByFiltersAsync({ filter, sort, pagination, itemprice })
+    );
+  }, [dispatch, filter, sort, page, range]);
 
   useEffect(() => {
     setPage(1);
@@ -136,6 +158,13 @@ const ProductList = () => {
           mobileFiltersOpen={mobileFiltersOpen}
           setMobileFiltersOpen={setMobileFiltersOpen}
           filters={filters}
+          products={products}
+          maxPrice={maxPrice}
+          isConditonTrue={isConditonTrue}
+          radioSelected={radioSelected}
+          handleRadioChange={handleRadioChange}
+          range={range}
+          setRange={setRange}
         />
 
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -189,14 +218,6 @@ const ProductList = () => {
                   </Menu.Items>
                 </Transition>
               </Menu>
-
-              <button
-                type="button"
-                className="-m-2 ml-5 p-2 text-gray-400 hover:text-gray-500 sm:ml-7"
-              >
-                <span className="sr-only">View grid</span>
-                <Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
-              </button>
               <button
                 type="button"
                 className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
@@ -214,7 +235,18 @@ const ProductList = () => {
             </h2>
 
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
-              <DesktopFilter handleFilter={handleFilter} filters={filters} />
+              <DesktopFilter
+                handleFilter={handleFilter}
+                filters={filters}
+                isConditonTrue={isConditonTrue}
+                radioSelected={radioSelected}
+                handleRadioChange={handleRadioChange}
+                checkbox={checkbox}
+                products={products}
+                maxPrice={maxPrice}
+                range={range}
+                setRange={setRange}
+              />
 
               {/* Product grid */}
               <ProductGrid products={products} />
@@ -242,6 +274,13 @@ function MobileFilter({
   setMobileFiltersOpen,
   handleFilter,
   filters,
+  products,
+  maxPrice,
+  range,
+  setRange,
+  isConditonTrue,
+  radioSelected,
+  handleRadioChange,
 }) {
   return (
     <div>
@@ -288,6 +327,36 @@ function MobileFilter({
                 </div>
 
                 {/* Filters */}
+                <div className="relative flex items-center p-4">
+                  <input
+                    className="w-4 h-4 transition-colors bg-white border-2 rounded-full appearance-none cursor-pointer peer border-slate-500 checked:border-cyan-500 checked:bg-cyan-500 checked:hover:border-cyan-600 checked:hover:bg-cyan-600 focus:outline-none checked:focus:border-cyan-700 checked:focus:bg-cyan-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-slate-100 disabled:bg-slate-50"
+                    type="radio"
+                    value=""
+                    checked={radioSelected}
+                    disabled={isConditonTrue}
+                    id="louie"
+                    name="drone"
+                    onChange={handleRadioChange}
+                  />
+                  <label className="pl-2 cursor-pointer text-slate-500 peer-disabled:cursor-not-allowed peer-disabled:text-slate-400">
+                    All Products
+                  </label>
+                  <svg
+                    className="absolute left-0 w-4 h-4 transition-all duration-300 scale-50 opacity-0 pointer-events-none fill-white peer-checked:scale-100 peer-checked:opacity-100 peer-disabled:cursor-not-allowed"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-labelledby="title-3 description-3"
+                    role="graphics-symbol"
+                  >
+                    <title id="title-3">Circle Shape</title>
+                    <desc id="description-3">
+                      Circle shape to indicate whether the radio input is
+                      checked or not.
+                    </desc>
+                    <circle cx="8" cy="8" r="4" />
+                  </svg>
+                </div>
                 <form className="mt-4 border-t border-gray-200">
                   {filters.map((section) => (
                     <Disclosure
@@ -350,6 +419,14 @@ function MobileFilter({
                     </Disclosure>
                   ))}
                 </form>
+                <div className="w-72 justify-center items-center ml-4">
+                  <PriceFilter
+                    products={products}
+                    maxPrice={maxPrice}
+                    range={range}
+                    setRange={setRange}
+                  />
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -358,9 +435,49 @@ function MobileFilter({
     </div>
   );
 }
-function DesktopFilter({ handleFilter, filters }) {
+export function DesktopFilter({
+  handleFilter,
+  filters,
+  isConditonTrue,
+  radioSelected,
+  handleRadioChange,
+  checkbox,
+  products,
+  maxPrice,
+  range,
+  setRange,
+}) {
   return (
     <div className="hidden lg:block">
+      <div className="relative flex items-center">
+        <input
+          className="w-4 h-4 transition-colors bg-white border-2 rounded-full appearance-none cursor-pointer peer border-slate-500 checked:border-cyan-500 checked:bg-cyan-500 checked:hover:border-cyan-600 checked:hover:bg-cyan-600 focus:outline-none checked:focus:border-cyan-700 checked:focus:bg-cyan-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-slate-100 disabled:bg-slate-50"
+          type="radio"
+          value=""
+          checked={radioSelected}
+          disabled={isConditonTrue}
+          id="louie"
+          name="drone"
+          onChange={handleRadioChange}
+        />
+        <label className="pl-2 cursor-pointer text-slate-500 peer-disabled:cursor-not-allowed peer-disabled:text-slate-400">
+          All Products
+        </label>
+        <svg
+          className="absolute left-0 w-4 h-4 transition-all duration-300 scale-50 opacity-0 pointer-events-none fill-white peer-checked:scale-100 peer-checked:opacity-100 peer-disabled:cursor-not-allowed"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-labelledby="title-3 description-3"
+          role="graphics-symbol"
+        >
+          <title id="title-3">Circle Shape</title>
+          <desc id="description-3">
+            Circle shape to indicate whether the radio input is checked or not.
+          </desc>
+          <circle cx="8" cy="8" r="4" />
+        </svg>
+      </div>
       {filters.map((section) => (
         <Disclosure
           as="div"
@@ -387,7 +504,7 @@ function DesktopFilter({ handleFilter, filters }) {
                 </Disclosure.Button>
               </h3>
               <Disclosure.Panel className="pt-6">
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-scroll h-96 overflow-x-hidden px-3 py-2">
                   {section.options.map((option, optionIdx) => (
                     <div key={option.value} className="flex items-center">
                       <input
@@ -395,7 +512,7 @@ function DesktopFilter({ handleFilter, filters }) {
                         name={`${section.id}[]`}
                         defaultValue={option.value}
                         type="checkbox"
-                        defaultChecked={option.checked}
+                        defaultChecked={checkbox}
                         onChange={(e) => handleFilter(e, section, option)}
                         className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 rounded-full"
                       />
@@ -413,10 +530,16 @@ function DesktopFilter({ handleFilter, filters }) {
           )}
         </Disclosure>
       ))}
+      <PriceFilter
+        products={products}
+        maxPrice={maxPrice}
+        range={range}
+        setRange={setRange}
+      />
     </div>
   );
 }
-function Pagination({ handlePage, page, setPage, totalItems = 55 }) {
+function Pagination({ handlePage, page, setPage, totalItems }) {
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   return (
     <>
@@ -515,19 +638,33 @@ function ProductGrid({ products }) {
               Customers also purchased
             </h2>
 
-            <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:gap-x-8 max-sm:grid-cols-2 ">
+            <div className="mt-6 grid grid-cols-4 gap-6 md:grid-cols-8 lg:grid-cols-12">
               {products.map((product) => (
                 <Link
                   to={`/product-detail/${product.id}`}
                   key={product.id}
-                  className="group relative border-solid border-0 border-gray-200 p-1 shadow-lg rounded-lg hover:scale-105 duration-300 "
+                  className="group relative border-solid border-0 border-gray-200 p-1 shadow-lg rounded-lg hover:scale-105 duration-300 col-span-4 lg:col-span-3"
                 >
-                  <div className="aspect-h-1 aspect-w-1 w-full object-cover overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-60">
-                    <img
-                      src={product.thumbnail}
-                      alt={product.title}
-                      className="h-full w-full object-cover object-center lg:h-full lg:w-full"
-                    />
+                  <div
+                    key={product.id}
+                    className="aspect-h-1 aspect-w-1 w-full object-cover overflow-hidden rounded-xl bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-60"
+                  >
+                    {product.thumbnail.startsWith("http") ||
+                    product.thumbnail.startsWith("https") ? (
+                      // External image
+                      <img
+                        src={product.thumbnail}
+                        alt={product.title}
+                        className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                      />
+                    ) : (
+                      // Local image
+                      <img
+                        src={`/product-images/${product.thumbnail}`}
+                        alt={product.title}
+                        className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                      />
+                    )}
                   </div>
                   <div className="mt-4 flex justify-between">
                     <div>
@@ -548,8 +685,10 @@ function ProductGrid({ products }) {
                     {product.stock <= 0 ? (
                       <div>
                         <span className="inline-flex items-center justify-center rounded-full bg-red-100 px-2.5 py-0.5 text-red-700">
-                          <MdProductionQuantityLimits className=" text-red-700 text-xl mr-1"/>
-                          <p className="whitespace-nowrap text-sm">Out of Stock</p>
+                          <MdProductionQuantityLimits className=" text-red-700 text-xl mr-1" />
+                          <p className="whitespace-nowrap text-sm">
+                            Out of Stock
+                          </p>
                         </span>
                       </div>
                     ) : (

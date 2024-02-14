@@ -30,7 +30,7 @@ const Cart = ({ useLink, handleOrder }) => {
   const totalAmount = items.reduce(
     (amount, item) =>
       Math.round(
-        item.product.price * (1 - item.product.discountPercentage / 100),
+        item.product?.price * (1 - item.product?.discountPercentage / 100),
         2
       ) *
         item.quantity +
@@ -78,28 +78,27 @@ const Cart = ({ useLink, handleOrder }) => {
                 <li key={item.id} className="flex py-9">
                   <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
-                      src={item.product.thumbnail}
-                      alt={item.product.title}
+                      src={item.product.thumbnail.startsWith("http")?item.product?.thumbnail:`/product-images/${item.product.thumbnail}`}
+                      alt={item.product?.title}
                       className="h-full w-full object-cover object-center"
                     />
                   </div>
-
                   <div className="ml-4 flex flex-1 flex-col">
                     <div>
                       <div className="flex justify-between text-base font-medium text-gray-900">
                         <h3>
-                          <Link to={item.product.id}>{item.product.title}</Link>
+                          <Link to={item.product?.id}>{item.product?.title}</Link>
                         </h3>
                         <p className="ml-4">
                           $
                           {Math.round(
-                            item.product.price *
-                              (1 - item.product.discountPercentage / 100)
+                            item.product?.price *
+                              (1 - item.product?.discountPercentage / 100)
                           )}
                         </p>
                       </div>
                       <p className="mt-1 text-sm text-gray-500">
-                        {item.product.brand}
+                        {item.product?.brand}
                       </p>
                     </div>
                     <div className="flex flex-1 items-end justify-between text-sm">
@@ -120,9 +119,9 @@ const Cart = ({ useLink, handleOrder }) => {
 
                       <div className="flex">
                         <Modal
-                          title={`Delete ${item.product.title}`}
-                          message="Are you sure you want to delete this Cart item ?"
-                          dangerOption="Delete"
+                          title={`Remove ${item.product?.title} in The Cart`}
+                          message="Are you sure you want to remove this Cart item ?"
+                          dangerOption="Remove"
                           cancelOption="Cancel"
                           dangerAction={(e) => handleRemove(e, item.id)}
                           cancelAction={(e) => setOpenModal(null)}

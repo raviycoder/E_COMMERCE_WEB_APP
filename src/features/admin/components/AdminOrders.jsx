@@ -15,6 +15,9 @@ import { IoEye } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import Pagination from "../../common/Pagination";
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
+import SideNav from "../../navbar/SideNav";
+import { FaCircleArrowRight } from "react-icons/fa6";
+import { OrdersStatus } from "./ProductStatus";
 
 const AdminOrders = () => {
   const [page, setPage] = useState(1);
@@ -59,6 +62,7 @@ const AdminOrders = () => {
 
   const handleUpdate = ({e, order}) => {
     const updatedOrder = { ...order, status: e.target.value };
+    console.log({ updatedOrder });
     dispatch(updateOrderAsync(updatedOrder));
     setEditableOrderId(-1);
   };
@@ -68,15 +72,15 @@ const AdminOrders = () => {
   }, [dispatch, page, sort]);
   return (
     <>
-      <div className="flex flex-wrap -mx-3 mb-5">
+      <div className="flex flex-wrap -mx-3 mb-5 lg:pl-64">
         <div className="w-full max-w-full px-3 mb-6  mx-auto">
           <div className="relative flex-[1_auto] flex flex-col break-words min-w-0 bg-clip-border rounded-[.95rem] bg-white m-5">
             <div className="relative flex flex-col min-w-0 break-words border border-dashed bg-clip-border rounded-2xl border-stone-200 bg-light/30">
               {/* card header */}
               <div className="px-9 pt-5 flex justify-between items-stretch flex-wrap min-h-[70px] pb-0 bg-transparent">
                 <h3 className="flex flex-col items-start justify-center m-2 ml-0 font-medium text-xl/tight text-dark">
-                  <span className="mr-3 font-semibold text-dark">
-                    Products Orders
+                  <span className="mr-3 font-bold text-dark inline-flex items-end">
+                    Products Orders <FaCircleArrowRight className="ml-2" />
                   </span>
                   <span className="mt-1 font-medium text-secondary-dark text-lg/normal">
                     All Products are appearing
@@ -200,15 +204,43 @@ const AdminOrders = () => {
                           </td>
                           <td className="p-3 pl-0 relative right-3 text-start">
                             {order.title === editableOrderId ? (
+                              <div className="relative my-6 md:w-24">
                               <select
-                                className="w-full px-3 py-2 text-sm text-gray-600 bg-white border rounded-lg shadow-sm outline-none appearance-none focus:ring-offset-2 focus:ring-indigo-600 focus:ring-2"
+                                id="id-04"
+                                name="id-04"
+                                required
+                                className="peer relative h-10 w-full appearance-none rounded border border-slate-200 bg-white px-4 text-sm text-slate-500 outline-none transition-all autofill:bg-white focus:border-emerald-500 focus-visible:outline-none focus:focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
                                 onChange={(e) => handleUpdate({ e, order })}
                               >
-                                <option value="pending">Pending</option>
+                                <option value="" selected></option>
+                                <option value="pending" >Pending</option>
                                 <option value="dispatched">Dispatched</option>
                                 <option value="delivered">Delivered</option>
                                 <option value="cancelled">Cancelled</option>
                               </select>
+                              <label
+                                htmlFor="id-04"
+                                className="pointer-events-none absolute top-2.5 left-2 z-[1] px-2 text-sm text-slate-400 transition-all before:absolute before:top-0 before:left-0 before:z-[-1] before:block before:h-full before:w-full before:bg-white before:transition-all peer-required:after:text-pink-500 peer-required:after:content-['\00a0*'] peer-valid:-top-2 peer-valid:text-xs peer-focus:-top-2 peer-focus:text-xs peer-focus:text-emerald-500 peer-disabled:cursor-not-allowed peer-disabled:text-slate-400 peer-disabled:before:bg-transparent"
+                              >
+                                Select
+                              </label>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="pointer-events-none absolute top-2.5 right-2 h-5 w-5 fill-slate-400 transition-all peer-focus:fill-emerald-500 peer-disabled:cursor-not-allowed"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-labelledby="title-04 description-04"
+                                role="graphics-symbol"
+                              >
+                                <title id="title-04">Arrow Icon</title>
+                                <desc id="description-04">Arrow icon of the select list.</desc>
+                                <path
+                                  fillRule="evenodd"
+                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
                             ) : (
                               <span
                                 className={`${chooseColor(order.status)} text-center align-baseline inline-flex px-2 py-1 mr-auto items-center font-semibold text-base/nonewhitespace-nowrap rounded-full text-sm capitalize`}
@@ -224,7 +256,7 @@ const AdminOrders = () => {
                                 onClick={handleShow}
                                 className="p-2 rounded-full hover:bg-gray-300 focus:bg-gray-100"
                               >
-                                <IoEye />
+                                <OrdersStatus order={order} />
                               </button>
                               <button
                                 onClick={handleEdit}
@@ -244,7 +276,8 @@ const AdminOrders = () => {
           </div>
         </div>
       </div>
-      <div>
+      <div className=" lg:pl-72">
+        <SideNav/>
         <Pagination
           page={page}
           setPage={setPage}

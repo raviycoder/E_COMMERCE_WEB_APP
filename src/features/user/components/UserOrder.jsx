@@ -10,9 +10,9 @@ const UserOrder = () => {
   const orders = useSelector(selectUserOrders);
 
   useEffect(() => {
-    dispatch(fetchLoggedInUserOrdersAsync(userInfo.id));
+    dispatch(fetchLoggedInUserOrdersAsync(userInfo?.id));
   }, [dispatch, userInfo]);
-  return (
+  if (Array.isArray(orders)) {return (
     <div>
         <h1 className=" relative font-semibold text-center underline text-3xl top-4 underline-offset-2">Your Orders</h1>
       {orders.map((order) => (
@@ -32,7 +32,7 @@ const UserOrder = () => {
                     <li key={item.id} className="flex py-9">
                       <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                         <img
-                          src={item.product.thumbnail}
+                          src={item.product.thumbnail.startsWith("http")?item.product?.thumbnail:`/product-images/${item.product.thumbnail}`}
                           alt={item.product.title}
                           className="h-full w-full object-cover object-center"
                         />
@@ -105,7 +105,7 @@ const UserOrder = () => {
         </div>
       ))}
     </div>
-  );
+  );}
 };
 
 export default UserOrder;

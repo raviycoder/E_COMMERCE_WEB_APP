@@ -1,6 +1,8 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-key */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
+import { ImCross } from "react-icons/im";
 
 import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,9 +10,14 @@ import { FiAlertCircle } from "react-icons/fi";
 import {
   clearSelectedProduct,
   createProductAsync,
+  deleteAllImageAsync,
+  deleteOneImageAsync,
+  deleteProductImageAsync,
   fetchAllProductByIdAsync,
+  fetchProductImagesasync,
   selectBrands,
   selectCategories,
+  selectProductImages,
   selectedProductById,
   updateProductAsync,
 } from "../../product/productSlice";
@@ -18,11 +25,15 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import Modal from "../../common/Modal";
 import { Bounce, toast } from "react-toastify";
+import { updateUserAsync } from "../../user/userSlice";
+import axios from "axios";
+import { useDropzone } from "react-dropzone";
 
 const ProductForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(null);
+  const productImages = useSelector(selectProductImages);
   const {
     register,
     handleSubmit,
@@ -53,10 +64,7 @@ const ProductForm = () => {
         setValue("stock", selectedProduct.stock);
         setValue("discountPercentage", selectedProduct.discountPercentage);
         setValue("thumbnail", selectedProduct.thumbnail);
-        setValue("image1", selectedProduct.images[0]);
-        setValue("image2", selectedProduct.images[1]);
-        setValue("image3", selectedProduct.images[2]);
-        setValue("image4", selectedProduct.images[3]);
+        setValue("images", selectedProduct.images);
       }
     };
     fetchData();
@@ -68,19 +76,44 @@ const ProductForm = () => {
     dispatch(updateProductAsync(product));
   };
 
+  const onDrop = async (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    console.log("image", file);
+    const formData = new FormData();
+    formData.append("images", file);
+    axios
+      .post("http://localhost:8080/products/upload", formData)
+      .then((response) => {
+        console.log("Image uploaded:", response.data.imageUrl);
+        dispatch(fetchProductImagesasync());
+      });
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: "image/*",
+  });
+
   const handleCreateProduct = (data) => {
     const product = prepareProductData(data);
     dispatch(createProductAsync(product));
-    resetFormAndNotify('Product Successfully Created');
+    resetFormAndNotify("Product Successfully Created");
   };
 
   const handleUpdateProduct = (data) => {
     const product = prepareProductData(data);
     product.id = params.id;
-    product.rating = selectedProduct.rating || 0;
+    // data.images = [...data.images, ...productImages];
+    product.rating = selectedProduct?.rating || 0;
     dispatch(updateProductAsync(product));
-    resetFormAndNotify('Product Successfully Updated');
+    resetFormAndNotify("Product Successfully Updated");
   };
+  console.log("Product Successfully Updated", handleUpdateProduct);
+
+  // const handleDelete = (index) => {
+  //   console.log(index + " deleted image")
+  //   // dispatch(deleteProductImageAsync(index))
+  // }
 
   const resetFormAndNotify = (message) => {
     reset();
@@ -95,32 +128,53 @@ const ProductForm = () => {
       theme: "colored",
       transition: Bounce,
     });
-    navigate('/admin');
+    navigate("/admin");
   };
 
   const prepareProductData = (data) => {
+    if (params.id && !productImages.error) {
+      data.images = [...data.images, ...productImages];
+    }
     const product = { ...data };
-    product.images = [data.image1, data.image2, data.image3, data.image4];
-    delete product['image1'];
-    delete product['image2'];
-    delete product['image3'];
-    delete product['image4'];
+    // product.images += productImages.map(image=>image)
+    // product.images = [data.image1, data.image2, data.image3, data.image4];
+    // delete product["image1"];
+    // delete product["image2"];
+    // delete product["image3"];
+    // delete product["image4"];
+    const imagesArray = Object.keys(data.images).map((key) => data.images[key]);
+    console.log("ghgfffghf", imagesArray);
     product.price = +data.price;
     product.discountPercentage = +data.discountPercentage;
     product.stock = +data.stock;
     return product;
   };
+  console.log("productimages", productImages);
 
+  const imagelength = productImages?.error ? 0 : productImages?.length;
 
+  const checkisfive = imagelength + selectedProduct?.images.length < 5;
+
+  console.log("prepareProductData", prepareProductData);
+  console.log("checkis", checkisfive);
+  useEffect(() => {
+    dispatch(fetchProductImagesasync());
+  }, [dispatch]);
   return (
     <>
       <form
         noValidate
         onSubmit={handleSubmit((data) => {
+          // Assuming data.images and productImages are arrays
+          // data.images = [...data.images, ...productImages];
+
+          console.log(data);
           if (params.id) {
-            handleUpdateProduct(data);
+            console.log("handleupdate", handleUpdateProduct(data));
+            dispatch(deleteAllImageAsync());
           } else {
             handleCreateProduct(data);
+            dispatch(deleteAllImageAsync());
           }
         })}
       >
@@ -304,26 +358,45 @@ const ProductForm = () => {
                       </div>
                     </div>
 
-                    <div className="sm:col-span-2 sm:col-start-1">
-                      <label
-                        htmlFor="city"
-                        className="block text-sm font-medium leading-6 text-gray-900"
-                      >
-                        Thumbnail Link
-                      </label>
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          {...register("thumbnail", {
-                            required: "Thumbnail Image is Required",
-                          })}
-                          id="thumbnail"
-                          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                      </div>
-                    </div>
+                    {productImages?.length > 0 && productImages !== null && (
+                      <>
+                        <div className="sm:col-span-2 sm:col-start-1 hidden">
+                          <label
+                            htmlFor="city"
+                            className="block text-sm font-medium leading-6 text-gray-900"
+                          >
+                            Thumbnail Link
+                          </label>
+                          <div className="mt-2">
+                            <input
+                              type="text"
+                              {...register("thumbnail", {
+                                required: "Thumbnail Image is Required",
+                              })}
+                              id="thumbnail"
+                              value={productImages[0]}
+                              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
 
-                    <div className="sm:col-span-2">
+                    {Array.isArray(productImages) &&
+                      productImages.map((image, index) => (
+                        <div className="hidden" key={image}>
+                          <input
+                            id={`images.${index}`}
+                            {...register(`images.${index}`, {
+                              required: "Image URL is required",
+                            })}
+                            // placeholder={`Image URL ${index + 1}`}
+                            defaultValue={image} // Set the default value to the image URL
+                          />
+                        </div>
+                      ))}
+
+                    {/* <div className="sm:col-span-2">
                       <label
                         htmlFor="region"
                         className="block text-sm font-medium leading-6 text-gray-900"
@@ -337,6 +410,7 @@ const ProductForm = () => {
                             required: "Image 1 is Required",
                           })}
                           id="image1"
+                          value={productImages[1]}
                           autoComplete="address-level1"
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -357,6 +431,7 @@ const ProductForm = () => {
                             required: "Image 2 is Required",
                           })}
                           id="image1"
+                          value={productImages[2]}
                           autoComplete="postal-code"
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -376,6 +451,7 @@ const ProductForm = () => {
                             required: "Image 3 is Required",
                           })}
                           id="image3"
+                          value={productImages[3]}
                           autoComplete="postal-code"
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
@@ -395,67 +471,102 @@ const ProductForm = () => {
                             required: "Image 4 is Required",
                           })}
                           id="image4"
+                          value={productImages[4]}
                           autoComplete="postal-code"
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
-                <label
-                  htmlFor="photo"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Photo
-                </label>
-                <div className="mt-2 flex items-center gap-x-3">
-                  <UserCircleIcon
-                    className="h-12 w-12 text-gray-300"
-                    aria-hidden="true"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              </div>
+              {!params.id &&
+              (productImages?.length < 5 || productImages?.error) ? (
+                <div className="col-span-full">
+                  <div className="items-center justify-center text-center">
+                    <h3 className="text-lg font-semibold">
+                      Upload Product Images
+                    </h3>
+                  </div>
+                  <label
+                    htmlFor="cover-photo"
+                    className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    Change
-                  </button>
-                </div>
-              </div>
-
-              <div className="col-span-full">
-                <label
-                  htmlFor="cover-photo"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Cover photo
-                </label>
-                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                  <div className="text-center">
-                    <PhotoIcon
-                      className="mx-auto h-12 w-12 text-gray-300"
-                      aria-hidden="true"
-                    />
-                    <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                      <label
-                        htmlFor="file-upload"
-                        className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                      >
-                        <span>Upload a file</span>
-                        <input
-                          id="file-upload"
-                          name="file-upload"
-                          type="file"
-                          className="sr-only"
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
+                    Products Images
+                  </label>
+                  <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                    <div className="text-center" {...getRootProps()}>
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        {...getInputProps()}
+                        className="sr-only"
+                      />
+                      <PhotoIcon
+                        className="mx-auto h-12 w-12 text-gray-300"
+                        aria-hidden="true"
+                      />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="file-upload"
+                          className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                        >
+                          <span>Upload a Image</span>
+                        </label>
+                        <p className="pl-1">You Can Upload Up To 5 Images</p>
+                      </div>
+                      <p className="text-xs leading-5 text-gray-600">
+                        Your First Image Save as thumbnail Image
+                      </p>
                     </div>
-                    <p className="text-xs leading-5 text-gray-600">
-                      PNG, JPG, GIF up to 10MB
-                    </p>
                   </div>
                 </div>
-              </div>
+              ) : null}
+              {params.id &&
+              selectedProduct?.images.length < 5 &&
+              checkisfive ? (
+                <div className="col-span-full">
+                  <div className="items-center justify-center text-center">
+                    <h3 className="text-lg font-semibold">
+                      Upload Product Images
+                    </h3>
+                  </div>
+                  <label
+                    htmlFor="cover-photo"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Products Images
+                  </label>
+                  <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                    <div className="text-center" {...getRootProps()}>
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        {...getInputProps()}
+                        className="sr-only"
+                      />
+                      <PhotoIcon
+                        className="mx-auto h-12 w-12 text-gray-300"
+                        aria-hidden="true"
+                      />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="file-upload"
+                          className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                        >
+                          <span>Upload a Image</span>
+                        </label>
+                        <p className="pl-1">You Can Upload Up To 5 Images</p>
+                      </div>
+                      <p className="text-xs leading-5 text-gray-600">
+                        Your First Image Save as thumbnail Image
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -593,12 +704,20 @@ const ProductForm = () => {
             </fieldset>
           </div>
         </div> */}
+
+          <ImageUpload
+            Images={productImages}
+            params={params}
+            product={selectedProduct}
+          />
         </div>
 
         <div className="mt-6 flex items-center justify-end gap-x-6 p-3">
           <button
             type="button"
-            onClick={() => navigate("/admin")}
+            onClick={() => {
+              navigate("/admin"), dispatch(deleteAllImageAsync());
+            }}
             className="text-sm font-semibold leading-6 text-gray-900"
           >
             Cancel
@@ -620,9 +739,131 @@ const ProductForm = () => {
             Save
           </button>
         </div>
+        <Modal
+          title={`Delete ${selectedProduct?.title} in Products`}
+          message="Are you sure you want to delete this Product ?"
+          dangerOption="Delete"
+          cancelOption="Cancel"
+          dangerAction={(e) => handleDelete(e, selectedProduct.id)}
+          cancelAction={(e) => setOpenModal(null)}
+          showModal={openModal}
+        />
       </form>
     </>
   );
 };
+
+function ImageUpload({ Images, params, product }) {
+  const dispatch = useDispatch();
+
+  const handleEditDelete = (index, product) => {
+    const productId = { id: product.id };
+    // console.log(productId, index)
+    dispatch(deleteOneImageAsync({ index, productId }));
+  };
+
+  const handleDelete = (index) => {
+    console.log(index + " deleted image");
+    // const updatedImages = [...images]
+    // updatedImages.splice(index, 1);
+    // setImage(updatedImages)
+    dispatch(deleteProductImageAsync(index));
+    dispatch(fetchProductImagesasync());
+  };
+  const isExternalImage =
+    product?.images.some((image) => image.startsWith("http://")) ||
+    product?.images.some((image) => image.startsWith("https://"));
+  // useEffect(()=>{
+  // }, [])
+  console.log("Images", Images);
+  if (!params.id) {
+    return (
+      <>
+        {Images?.length > 0 && Images.image !== null ? (
+          <div>
+            <h3 className="font-bold text-lg ">Uploaded Images:</h3>
+            <div className="container px-6 m-auto">
+              <div className="grid grid-cols-4 gap-6 md:grid-cols-8 lg:grid-cols-12">
+                {Images?.length > 0 &&
+                  Images !== null &&
+                  Images.map((img, index) => (
+                    <li
+                      className="col-span-4 lg:col-span-3 relative"
+                      key={index}
+                    >
+                      <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
+                        <img
+                          src={`/product-images/${img}`}
+                          alt={`image ${index}`}
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-7 right-1 z-10 p-2 bg-red-500 text-white hover:bg-red-700 rounded-full focus:outline-none"
+                          onClick={() => handleDelete(index)}
+                        >
+                          <ImCross />
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {" "}
+      {params.id ? (
+        <div>
+          <h3 className="font-bold text-lg ">Uploaded Images:</h3>
+          <div className="container px-6 m-auto">
+            <div className="grid grid-cols-4 gap-6 md:grid-cols-8 lg:grid-cols-12">
+              {product?.images.map((img, index) => (
+                <li className="col-span-4 lg:col-span-3 relative" key={index}>
+                  <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
+                    <img
+                      src={isExternalImage ? img : `/product-images/${img}`}
+                      alt={`image ${index}`}
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-7 right-1 z-10 p-2 bg-red-500 text-white hover:bg-red-700 rounded-full focus:outline-none"
+                      onClick={() => handleEditDelete(index, product)}
+                    >
+                      <ImCross />
+                    </button>
+                  </div>
+                </li>
+              ))}
+              {Images?.length > 0 &&
+                Images !== null &&
+                Images.map((img, index) => (
+                  <li className="col-span-4 lg:col-span-3 relative" key={index}>
+                    <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
+                      <img
+                        src={`/product-images/${img}`}
+                        alt={`image ${index}`}
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-7 right-1 z-10 p-2 bg-red-500 text-white hover:bg-red-700 rounded-full focus:outline-none"
+                        onClick={() => handleDelete(index)}
+                      >
+                        <ImCross />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}
 
 export default ProductForm;

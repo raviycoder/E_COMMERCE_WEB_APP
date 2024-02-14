@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-async-promise-executor */
 export function fetchProductsById(id) {
@@ -52,6 +53,76 @@ export async function updateProduct(upadte) {
     return { error: 'Failed to update product.' };
   }
 }
+export async function deleteProductImage(index) {
+  const apiUrl = 'http://localhost:8080/products/image/';
+
+  try {
+    const response = await fetch(apiUrl + index, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete Image.');
+    }
+
+    const deleteProductImage = await response.json();
+    return { data: deleteProductImage };
+  } catch (error) {
+    // Handle errors gracefully (you might want to log the error, throw a custom error, etc.)
+    console.error('Error delete product image:', error);
+    return { error: 'Failed to delete product image.' };
+  }
+}
+export async function deleteAllImage() {
+  const apiUrl = 'http://localhost:8080/products/allimage';
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete Image.');
+    }
+
+    const deleteAllImage = await response.json();
+    return { data: deleteAllImage };
+  } catch (error) {
+    // Handle errors gracefully (you might want to log the error, throw a custom error, etc.)
+    console.error('Error delete product image:', error);
+    return { error: 'Failed to delete product image.' };
+  }
+}
+export async function deleteOneImage(index, productId) {
+  const apiUrl = 'http://localhost:8080/products/dimg/';
+
+  try {
+    const response = await fetch(apiUrl + index, {
+      method: 'DELETE',
+      body:JSON.stringify(productId),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete Image.');
+    }
+
+    const deleteAllImage = await response.json();
+    return { data: deleteAllImage };
+  } catch (error) {
+    // Handle errors gracefully (you might want to log the error, throw a custom error, etc.)
+    console.error('Error delete product image:', error);
+    return { error: 'Failed to delete product image.' };
+  }
+}
 
 
 export function fetchCategories() {
@@ -69,17 +140,26 @@ export function fetchBrands() {
     resolve({ data });
   });
 }
+export function fetchProductImages() {
+  return new Promise(async (resolve) => {
+    const response = await fetch("http://localhost:8080/images");
+    const data = await response.json();
+    resolve({ data });
+  });
+}
 
-export function fetchProductsByFilters(filter, sort, pagination, admin) {
+export function fetchProductsByFilters(filter, sort, pagination, admin, itemprice) {
   let queryString = "";
   for (let key in filter) {
     const categoryValues = filter[key];
     if (categoryValues.length) {
-      const lastCategoryValue = categoryValues[categoryValues.length - 1];
-      queryString += `${key}=${lastCategoryValue}&`;
+      queryString += `${key}=${categoryValues.join(",")}&`;
     }
   }
 
+  for (let key in itemprice) {
+    queryString += `${key}=${itemprice[key]}&`
+  }
   for (let key in sort) {
     queryString += `${key}=${sort[key]}&`;
   }
@@ -107,5 +187,13 @@ export function fetchProductsByFilters(filter, sort, pagination, admin) {
       console.error("Error fetching products by filters:", error);
       reject(error);
     }
+  });
+}
+
+export function SearchProducts(search) {
+  return new Promise(async (resolve) => {
+    const response = await fetch(`http://localhost:8080/search?search=${search}`);
+    const data = await response.json();
+    resolve({ data });
   });
 }

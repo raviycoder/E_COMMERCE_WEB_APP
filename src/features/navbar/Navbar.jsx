@@ -1,235 +1,269 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Fragment } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
-import {
-  Bars3Icon,
-  ShoppingCartIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+/* eslint-disable react/jsx-key */
+/* eslint-disable react/display-name */
+/* eslint-disable react-refresh/only-export-components */
+import Brand from "../../assets/Com.png";
 import { useSelector } from "react-redux";
 import { selectItems } from "../cart/cartSlice";
-import { selectLoggedInUser } from "../auth/authSlice";
+import Profile from "../../assets/403017_avatar_default_head_person_unknown_icon.png";
 import { selectUserInfo } from "../user/userSlice";
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ShoppingCartIcon } from "@heroicons/react/24/outline";
+import SearchModal from "../common/SearchModal";
 
-const navigation = [
-  { name: "Dashboard", to: "#", user: true },
-  { name: "About", to: "#", user: true },
-  { name: "Categories", to: "#", user: true },
-  { name: "Admin", to: "/admin", admin: true },
-  { name: "Orders", to: "/admin/orders", admin: true },
-];
+// Profile Dropdown
+const ProfileDropDown = (props) => {
+  const [state, setState] = useState(false);
+  const profileRef = useRef();
+  const [image, setImage] = useState(Profile)
+  const userInfo = useSelector(selectUserInfo);
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+  const navigation = [
+    { title: "My Profile", to: "/profile" },
+    { title: "My Orders", to: "/orders" },
+    { title: "Log out", to: "/logout" },
+    userInfo.role === "admin" ? { title: "Admin", to: "/admin/dashboard", admin: true } : null,
+    userInfo.role === "admin" ? { title: "Orders", to: "/admin/orders", admin: true } : null,
+  ].filter(item => item !== null);
+
+  useEffect(() => {
+    const handleDropDown = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setState(false);
+      }
+    };
+
+    
+
+    document.addEventListener("click", handleDropDown);
+
+    return () => {
+      document.removeEventListener("click", handleDropDown);
+    };
+  }, [profileRef]);
+
+    console.log('image path', userInfo.image);
+
+  return (
+    <div className={`relative ${props.class}`}>
+      <div className="flex items-center space-x-4">
+        <button
+          ref={profileRef}
+          className="w-10 h-10 outline-none rounded-full ring-offset-2 ring-gray-200 ring-2 lg:focus:ring-indigo-600"
+          onClick={() => setState(!state)}
+        >
+          <img
+            src={`/profile-images/${userInfo.image}`}
+            alt="Profile"
+            className="w-full h-full rounded-full"
+          />
+        </button>
+        <div className="lg:hidden">
+          <span className="block">{userInfo.name? userInfo.name:'New User'}</span>
+          <span className="block text-sm text-gray-500">{userInfo.email}</span>
+        </div>
+      </div>
+      <ul
+        className={`bg-blue-100 top-12 right-0 mt-5 space-y-5 lg:absolute lg:border lg:rounded-md lg:text-sm lg:w-52 lg:shadow-md lg:space-y-0 z-50 lg:mt-0 ${
+          state ? "" : "lg:hidden"
+        }`}
+      >
+        {navigation.map((item, idx) => (
+          <li key={idx}>
+            <Link
+              className="block text-gray-600 lg:hover:bg-gray-50 lg:p-2.5"
+              to={item.to}
+            >
+              {item.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 const Navbar = () => {
-  const itmes = useSelector(selectItems);
+
+  const [state, setState] = useState({
+    "id-l16": "",
+  })
+
+  const handleChange = evt => {
+    const value = evt.target.value
+    setState({
+      ...state,
+      [evt.target.name]: value,
+    })
+  }
+  const items = useSelector(selectItems);
   const userInfo = useSelector(selectUserInfo);
+
+  const [isShowing, setIsShowing] = useState(false)
+
+  const [menuState, setMenuState] = useState(false);
+
+  // Replace javascript:void(0) path with your path
+  const navigation = [
+    { title: "Home", to: "/", user: true },
+    { title: "Products", to: "/Products", user: true },
+    { title: "About", to: "/about", user: true },
+    { title: "Contact Us", to: "/contact", user: true },
+  ];
   return (
     <>
-    {userInfo && <Disclosure as="nav" className="bg-gray-800">
-      {({ open }) => (
-        <>
-          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-            <div className="relative flex h-16 items-center justify-between">
-              <div className="absolute inset-y-0 left-0 flex items-center md:hidden">
-                {/* Mobile menu button*/}
-                <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-                  <span className="absolute -inset-0.5" />
-                  <span className="sr-only">Open main menu</span>
-                  {open ? (
-                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                  ) : (
-                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                  )}
-                </Disclosure.Button>
+      {userInfo && (
+        <nav className=" bg-blue-100 border-b">
+          <div className="flex items-center space-x-8 py-1 px-4 max-w-screen-xl mx-auto md:px-8">
+            <div className="flex-none lg:flex-initial">
+              <Link to="/">
+                <img src={Brand} width={70} height={20} alt="Brand Logo" />
+              </Link>
+            </div>
+            <div className="flex-1 flex items-center justify-between">
+              <div
+                className={` bg-blue-100 absolute z-10 w-full top-16 left-0 p-4 border-b lg:static lg:block lg:border-none ${
+                  menuState ? "" : "hidden"
+                }`}
+              >
+                <ul className="mt-12 space-y-5 lg:flex lg:space-x-6 lg:space-y-0 lg:mt-0">
+                  {navigation.map((item, index) => (
+                    <li
+                      key={index}
+                      className="text-gray-600 hover:text-gray-900"
+                    >
+                      <Link to={item.to}>{item.title}</Link>
+                    </li>
+                  ))}
+                </ul>
+                <ProfileDropDown class="mt-5 pt-5 border-t lg:hidden" />
               </div>
-              <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                <div className="hidden sm:ml-6 md:block">
-                  <div className="flex space-x-4">
-                    {navigation.map((item) =>
-                      item[userInfo.role] ? (
-                        <Link
-                          key={item.name}
-                          to={item.to}
-                          className={classNames(
-                            item.user
-                              ? "bg-gray-900 text-white"
-                              : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                            "rounded-md px-3 py-2 text-sm font-medium"
-                          )}
-                          aria-current={item.user ? "page" : undefined}
-                        >
-                          {item.name}
-                        </Link>
-                      ) : null
-                    )}
-                  </div>
-                </div>
-              </div>
-              {/*
-  Heads up! 👋
 
-  Plugins:
-    - @tailwindcss/forms
-*/}
-
-              <div className="relative max-sm:hidden">
-                <label htmlFor="Search" className="sr-only">
-                  {" "}
-                  Search{" "}
-                </label>
-
-                <input
-                  type="text"
-                  id="Search"
-                  placeholder="Search for..."
-                  className="w-full rounded-md border-gray-200 py-2.5 pe-10 shadow-sm sm:text-sm"
-                />
-
-                <span className="absolute inset-y-0 end-0 grid w-10 place-content-center">
-                  <button
-                    type="button"
-                    className="text-gray-600 hover:text-gray-700"
+              <div className="flex-1 flex items-center justify-end space-x-2 sm:space-x-6 bg">
+                {/* <form className="flex items-center space-x-2 border rounded-md p-2 bg-white">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 flex-none text-gray-700"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    <span className="sr-only">Search</span>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  <input
+                    className="w-full placeholder-gray-500 text-gray-500 sm:w-auto"
+                    type="text"
+                    placeholder="Search"
+                  />
+                </form> */}
+                <form className="relative md:w-80">
+                  <input
+                    id="id-l16"
+                    type="text"
+                    name="id-l16"
+                    onClick={()=>setIsShowing(true)}
+                    placeholder="Search here"
+                    value={state["id-l16"]}
+                    className="relative w-full h-12 px-4 pr-12 transition-all border rounded-xl outline-none peer border-slate-200 text-slate-500 autofill:bg-white invalid:border-pink-500 invalid:text-pink-500 focus:border-emerald-500 focus:outline-none invalid:focus:border-pink-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+                    onChange={handleChange}
+                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="absolute w-6 h-6 cursor-pointer top-3 right-4 stroke-slate-400 peer-disabled:cursor-not-allowed"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    aria-hidden="true"
+                    aria-labelledby="title-9 description-9"
+                    role="graphics-symbol"
+                  >
+                    <title id="title-9">Search icon</title>
+                    <desc id="description-9">Icon description here</desc>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                    />
+                  </svg>
+                </form>
+                <SearchModal isShowing={isShowing} setIsShowing={setIsShowing} />
+                {/* cart start */}
+                <div className="flex-row p-2 px-5 bottom-3 relative right-2">
+                  <Link
+                    to="/cart"
+                    className={`absolute ${
+                      items.length > 0 ? "top-8" : "top-5"
+                    }`}
+                  >
+                    <button
+                      disabled={items.length < 0}
+                      type="button"
+                      className="relative rounded-full text-gray-400 bottom-3 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                    >
+                      <ShoppingCartIcon
+                        className="h-8 w-8 text-blue-600"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </Link>
+                  {items.length > 0 && (
+                    <span className="inline-flex items-center relative left-5 top-1 justify-center gap-1 rounded bg-cyan-500 px-1.5 text-sm text-white">
+                      <span className="">{items.length}</span>
+                    </span>
+                  )}
+                </div>
+                {/* cart end */}
 
+                <ProfileDropDown class="hidden lg:block" />
+                <button
+                  className="outline-none text-gray-400 block lg:hidden"
+                  onClick={() => setMenuState(!menuState)}
+                >
+                  {menuState ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
                       fill="none"
                       viewBox="0 0 24 24"
-                      strokeWidth="1.5"
                       stroke="currentColor"
-                      className="h-4 w-4"
                     >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                <Link to="/">
-                  <div className=" min-w-max items-center">
-                    <p className=" relative text-4xl text-white font-semibold font-sunito max-sm:scale-75 max-[360]:scale-75 max-[310px]:hidden mr-3 max-sm:mr-0">
-                      E-commerce
-                    </p>
-                  </div>
-                </Link>
-                <Link to="/cart">
-                  <button
-                    type="button"
-                    className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                  >
-                    <span className="absolute -inset-1.5" />
-                    <span className="sr-only">View notifications</span>
-                    <ShoppingCartIcon className="h-8 w-8" aria-hidden="true" />
-                  </button>
-                </Link>
-                {itmes.length > 0 && (
-                  <span className="relative inline-flex items-center rounded-md bg-blue-50 px-2 py-1 mb-5 -left-3 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                    {itmes.length}
-                  </span>
-                )}
-
-                {/* Profile dropdown */}
-                <Menu as="div" className="relative ml-3">
-                  <div>
-                    <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                      <span className="absolute -inset-1.5" />
-                      <span className="sr-only">Open user menu</span>
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt=""
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16m-7 6h7"
                       />
-                    </Menu.Button>
-                  </div>
-                  <Transition
-                    as={Fragment}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
-                  >
-                    <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      <Menu.Item>
-                        {({ active }) => (
-                          <Link
-                            to="/profile"
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700"
-                            )}
-                          >
-                            My Profile
-                          </Link>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <Link
-                            to="/orders"
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700"
-                            )}
-                          >
-                            My Orders
-                          </Link>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <Link
-                            to="/logout"
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700"
-                            )}
-                          >
-                            Sign out
-                          </Link>
-                        )}
-                      </Menu.Item>
-                    </Menu.Items>
-                  </Transition>
-                </Menu>
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
           </div>
-
-          <Disclosure.Panel className="sm:hidden">
-            <div className="space-y-1 px-2 pb-3 pt-2">
-              {navigation.map((item) => (
-                <Disclosure.Button
-                  key={item.name}
-                  as="a"
-                  href={item.tohref}
-                  className={classNames(
-                    item.user
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                    "block rounded-md px-3 py-2 text-base font-medium"
-                  )}
-                  aria-current={item.user ? "page" : undefined}
-                >
-                  {item.name}
-                </Disclosure.Button>
-              ))}
-            </div>
-          </Disclosure.Panel>
-        </>
+        </nav>
       )}
-    </Disclosure>}
     </>
   );
 };

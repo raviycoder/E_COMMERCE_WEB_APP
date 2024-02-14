@@ -31,7 +31,11 @@ import AdminProductDetailPage from "./pages/AdminProductDetailPage";
 import Copy from "./features/admin/components/ProductForm";
 import AdminProductFormPage from "./pages/AdminProductFormPage";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
-import StripeCheckout from "./pages/StripeCheckoutPage";
+import AllProductsPage from "./pages/AllProductsPage";
+import AboutPage from "./pages/AboutPage";
+import ContactUs from "./pages/ContactUs";
+import AllAdminsPage from "./pages/AllAdminsPage";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -113,6 +117,14 @@ function App() {
             }
           />
           <Route
+            path="/products"
+            element={
+              <Protected>
+                <AllProductsPage />
+              </Protected>
+            }
+          />
+          <Route
             path="/admin"
             element={
               <ProtectedAdmin>
@@ -158,6 +170,34 @@ function App() {
               <ProtectedAdmin>
                 <AdminOrdersPage />
               </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/admin/adminusers"
+            element={
+              <ProtectedAdmin>
+                <AllAdminsPage />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="admin/dashboard"
+            element={
+              <ProtectedAdmin>
+                <DashboardPage />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+                <AboutPage />
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+                <ContactUs />
             }
           />
         </Routes>

@@ -10,7 +10,6 @@ function AdminOrdersPage() {
   const status = useSelector(selectOrderStatus);
   return (
     <>
-      <Navbar />
       {status === "loading" ? (
         <div className="flex relative items-center p-4 justify-center h-full w-full ">
           <Circles

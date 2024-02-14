@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {fetchProductsByFilters, fetchBrands, fetchCategories, fetchProductsById, createProduct, updateProduct } from './ProductAPI';
+import {fetchProductsByFilters, fetchBrands, fetchCategories, fetchProductsById, createProduct, updateProduct, fetchProductImages, deleteProductImage, deleteAllImage, deleteOneImage, SearchProducts } from './ProductAPI';
 
 const initialState = {
   products: [],
@@ -7,7 +7,9 @@ const initialState = {
   categories: [],
   status: 'idle',
   totalItems: 0,
-  selectedProducts: null
+  selectedProducts: null,
+  images:null,
+  searchProduct:[]
 };
 
 export const fetchBrandsAsync = createAsyncThunk(
@@ -33,6 +35,20 @@ export const fetchCategoriesAsync = createAsyncThunk(
     return response.data;
   }
 );
+export const fetchSearchProductsAsync = createAsyncThunk(
+  'product/SearchProducts',
+  async (search) => {
+    const response = await SearchProducts(search);
+    return response.data;
+  }
+);
+export const fetchProductImagesasync = createAsyncThunk(
+  'product/fetchProductImages',
+  async () => {
+    const response = await fetchProductImages();
+    return response.data;
+  }
+);
 
 export const createProductAsync = createAsyncThunk(
   'product/createProduct',
@@ -49,11 +65,32 @@ export const updateProductAsync = createAsyncThunk(
     return response.data;
   }
 );
+export const deleteProductImageAsync = createAsyncThunk(
+  'product/deleteProductImage',
+  async (index) => {
+    const response = await deleteProductImage(index);
+    return response.data;
+  }
+);
+export const deleteAllImageAsync = createAsyncThunk(
+  'product/deleteAllImage',
+  async () => {
+    const response = await deleteAllImage();
+    return response.data;
+  }
+);
+export const deleteOneImageAsync = createAsyncThunk(
+  'product/deleteOneImage',
+  async ({index, productId}) => {
+    const response = await deleteOneImage(index, productId);
+    return response.data;
+  }
+);
 
 export const fetchProductsByFiltersAsync = createAsyncThunk(
   'product/fetchProductsByFilters',
-  async ({ filter, sort, pagination, admin }) => {
-    const response = await fetchProductsByFilters(filter, sort, pagination, admin);
+  async ({ filter, sort, pagination, admin, itemprice }) => {
+    const response = await fetchProductsByFilters(filter, sort, pagination, admin, itemprice);
     return response.data;
   }
 );
@@ -87,6 +124,26 @@ export const productSlice = createSlice({
         state.brands = action.payload;
       })
       .addCase(fetchBrandsAsync.rejected, (state) => {
+        state.status = 'error';
+      })
+      .addCase(fetchSearchProductsAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchSearchProductsAsync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.searchProduct = action.payload;
+      })
+      .addCase(fetchSearchProductsAsync.rejected, (state) => {
+        state.status = 'error';
+      })
+      .addCase(fetchProductImagesasync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchProductImagesasync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.images = action.payload;
+      })
+      .addCase(fetchProductImagesasync.rejected, (state) => {
         state.status = 'error';
       })
       .addCase(fetchCategoriesAsync.pending, (state) => {
@@ -130,6 +187,36 @@ export const productSlice = createSlice({
       })
       .addCase(updateProductAsync.rejected, (state) => {
         state.status = 'error';
+      })
+      .addCase(deleteProductImageAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteProductImageAsync.fulfilled, (state, action) => {
+        state.status = 'idle'
+        state.images = action.payload
+      })
+      .addCase(deleteProductImageAsync.rejected, (state) => {
+        state.status = 'error';
+      })
+      .addCase(deleteAllImageAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteAllImageAsync.fulfilled, (state, action) => {
+        state.status = 'idle'
+        state.images = action.payload
+      })
+      .addCase(deleteAllImageAsync.rejected, (state) => {
+        state.status = 'error';
+      })
+      .addCase(deleteOneImageAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteOneImageAsync.fulfilled, (state, action) => {
+        state.status = 'idle'
+        state.selectedProducts = action.payload
+      })
+      .addCase(deleteOneImageAsync.rejected, (state) => {
+        state.status = 'error';
       });
   },
 });
@@ -141,5 +228,7 @@ export const selectBrands = (state) => state.product.brands;
 export const selectCategories = (state) => state.product.categories;
 export const selectedProductById = (state) => state.product.selectedProducts;
 export const selectProductListStatus = (state) => state.product.status;
+export const selectProductImages = (state) => state.product.images;
+export const selectSearchProducts = (state) => state.product.searchProduct;
 
 export default productSlice.reducer;
