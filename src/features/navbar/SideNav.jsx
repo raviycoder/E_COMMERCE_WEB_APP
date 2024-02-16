@@ -14,6 +14,8 @@ import {
   fetchBrandsAsync,
   fetchCategoriesAsync,
   fetchProductsByFiltersAsync,
+  patchBrandsAsync,
+  patchCategoriesAsync,
   selectAllProducts,
   selectBrands,
   selectCategories,
@@ -135,14 +137,15 @@ export default function SideNav() {
     },
   ];
 
-  const handleRadioChange = () => {
-    setRadioSelected(true);
-    setCheckbox(false);
-    setFilter({
-      category: [],
-      brand: [],
-    });
-  };
+const handleRadioChange = () => {
+      setRadioSelected(true);
+      setCheckbox(false);
+      setRange([0, 2060])
+      setFilter({
+        category: [],
+        brand: [],
+      });
+    };
 
   const handleFilter = (e, section, option) => {
     console.log("condition", e.target.checked);
@@ -175,6 +178,16 @@ export default function SideNav() {
     dispatch(
       fetchProductsByFiltersAsync({ filter, sort, pagination, itemprice, admin: true})
     );
+    if (filter.brand) {
+      // console.log("weeqewq",filter.brand)
+      const checks = { filter: filter.brand };
+      dispatch(patchBrandsAsync(checks));
+    }
+    if (filter.category) {
+      // console.log("weeqewq",filter.brand)
+      const checks = { filter: filter.category };
+      dispatch(patchCategoriesAsync(checks));
+    }
   }, [dispatch, filter, sort, page, range]);
 
   useEffect(() => {

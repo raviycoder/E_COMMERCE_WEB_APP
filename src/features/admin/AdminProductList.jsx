@@ -20,9 +20,12 @@ import {
 } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
 import {
+  deleteAllImageAsync,
   fetchBrandsAsync,
   fetchCategoriesAsync,
   fetchProductsByFiltersAsync,
+  patchBrandsAsync,
+  patchCategoriesAsync,
   selectAllProducts,
   selectBrands,
   selectCategories,
@@ -53,6 +56,9 @@ const AdminProductList = () => {
   const brands = useSelector(selectBrands);
   const categories = useSelector(selectCategories);
   const totalItems = useSelector(selectTotalItems);
+  const [isConditonTrue, setCondition] = useState(false);
+  const [checkbox, setCheckbox] = useState(false);
+  const [radioSelected, setRadioSelected] = useState(true);
   const [filter, setFilter] = useState({});
   const [sort, setSort] = useState({});
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -70,10 +76,21 @@ const AdminProductList = () => {
     },
   ];
 
+  const handleRadioChange = () => {
+    setRadioSelected(true);
+    setCheckbox(false);
+    setRange([0, 2060])
+    setFilter({
+      category: [],
+      brand: [],
+    });
+  };
+
   const handleFilter = (e, section, option) => {
     console.log(e.target.checked);
     const newFilter = { ...filter };
     if (e.target.checked) {
+      setRadioSelected(isConditonTrue);
       if (newFilter[section.id]) {
         newFilter[section.id].push(option.value);
       } else {
@@ -85,8 +102,12 @@ const AdminProductList = () => {
       );
       newFilter[section.id].splice(index, 1);
     }
-    console.log({ newFilter });
+    const Uncheckedtrue = Object.values(newFilter).every(
+      (checkboxes) => checkboxes.length === 0
+    );
     setFilter(newFilter);
+    console.log("filter changed", newFilter);
+    setRadioSelected(Uncheckedtrue);
   };
 
   const handleSort = (e, option) => {
@@ -104,6 +125,16 @@ const AdminProductList = () => {
   useEffect(() => {
     const pagination = { _page: page, _limit: ITEMS_PER_PAGE };
     const itemprice = { minPrice: range[0], maxPrice: range[1] };
+    if (filter.brand) {
+      console.log("weeqewq",filter.brand)
+      const checks = { filter: filter.brand };
+      dispatch(patchBrandsAsync(checks));
+    }
+    if (filter.category) {
+      // console.log("weeqewq",filter.brand)
+      const checks = { filter: filter.category };
+      dispatch(patchCategoriesAsync(checks));
+    }
     dispatch(
       fetchProductsByFiltersAsync({
         filter,
@@ -113,6 +144,7 @@ const AdminProductList = () => {
         admin: true,
       })
     );
+
   }, [dispatch, filter, sort, page, range]);
 
   useEffect(() => {
@@ -207,7 +239,7 @@ const AdminProductList = () => {
               {/* <DesktopFilter handleFilter={handleFilter} filters={filters} /> */}
 
               {/* Product grid */}
-              <ProductGrid products={products} />
+              <ProductGrid products={products} dispatch={dispatch} />
               {/* Product grid end */}
             </div>
           </section>
@@ -599,7 +631,7 @@ export function DesktopFilter({
   return (
     <div className="lg:block">
       <div className="relative flex items-center">
-        <input
+        {/* <input
           className="w-4 h-4 transition-colors bg-white border-2 rounded-full appearance-none cursor-pointer peer border-slate-500 checked:border-cyan-500 checked:bg-cyan-500 checked:hover:border-cyan-600 checked:hover:bg-cyan-600 focus:outline-none checked:focus:border-cyan-700 checked:focus:bg-cyan-700 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-slate-100 disabled:bg-slate-50"
           type="radio"
           value=""
@@ -611,7 +643,13 @@ export function DesktopFilter({
         />
         <label className="pl-2 cursor-pointer text-slate-500 peer-disabled:cursor-not-allowed peer-disabled:text-slate-400">
           All Products
-        </label>
+        </label> */}
+        <button
+          onClick={handleRadioChange}
+          className="px-4 py-2 text-white bg-indigo-600 rounded-lg duration-150 hover:bg-indigo-700 active:shadow-lg"
+        >
+          Clear Filters
+        </button>
         <svg
           className="absolute left-0 w-4 h-4 transition-all duration-300 scale-50 opacity-0 pointer-events-none fill-white peer-checked:scale-100 peer-checked:opacity-100 peer-disabled:cursor-not-allowed"
           viewBox="0 0 16 16"
@@ -654,15 +692,16 @@ export function DesktopFilter({
               </h3>
               <Disclosure.Panel className="pt-6">
                 <div className="space-y-4 overflow-scroll h-96 overflow-x-hidden px-3 py-2">
-                  {section.options.map((option, optionIdx) => (
+                  {section.options?.map((option, optionIdx) => (
                     <div key={option.value} className="flex items-center">
                       <input
                         id={`filter-${section.id}-${optionIdx}`}
                         name={`${section.id}[]`}
                         defaultValue={option.value}
                         type="checkbox"
-                        defaultChecked={checkbox}
-                        onChange={(e) => handleFilter(e, section, option)}
+                        checked={option.checked}
+                        defaultChecked={option.checked}
+                        onChange={(e) => {handleFilter(e, section, option)}}
                         className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 rounded-full"
                       />
                       <label
@@ -830,7 +869,7 @@ function Pagination({ handlePage, page, setPage, totalItems = 55 }) {
 //     </div>
 //   );
 // }Link
-function ProductGrid({ products }) {
+function ProductGrid({ products, dispatch }) {
   console.log("ProductGrid", products);
   return (
     <div className="max-w-screen-2xl mx-auto px-4 md:pl-8">
@@ -847,6 +886,7 @@ function ProductGrid({ products }) {
         <div className="mt-3 md:mt-0">
           <Link
             to="/admin/product_form"
+            onClick={()=>dispatch(deleteAllImageAsync())}
             className="inline-block px-4 py-2 text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-sm"
           >
             Add Product
@@ -905,6 +945,7 @@ function ProductGrid({ products }) {
                 <td className="text-right px-6 whitespace-nowrap">
                   <Link
                     to={`/admin/product_form/edit/${item.id}`}
+                    onClick={()=>dispatch(deleteAllImageAsync())}
                     className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg"
                   >
                     Edit

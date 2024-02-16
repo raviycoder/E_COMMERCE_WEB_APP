@@ -123,6 +123,56 @@ export async function deleteOneImage(index, productId) {
     return { error: 'Failed to delete product image.' };
   }
 }
+export async function checkedBrands(filter) {
+  console.log('Checking', filter);
+  const apiUrl = 'http://localhost:8080/brands/';
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'PATCH',
+      body:JSON.stringify(filter),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete Image.');
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    // Handle errors gracefully (you might want to log the error, throw a custom error, etc.)
+    console.error('Error delete product image:', error);
+    return { error: 'Failed to delete product image.' };
+  }
+}
+export async function checkedCategory(filter) {
+  console.log('Checking', filter);
+  const apiUrl = 'http://localhost:8080/categories/';
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'PATCH',
+      body:JSON.stringify(filter),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete Image.');
+    }
+
+    const data = await response.json();
+    return { data };
+  } catch (error) {
+    // Handle errors gracefully (you might want to log the error, throw a custom error, etc.)
+    console.error('Error delete product image:', error);
+    return { error: 'Failed to delete product image.' };
+  }
+}
 
 
 export function fetchCategories() {
@@ -180,6 +230,7 @@ export function fetchProductsByFilters(filter, sort, pagination, admin, itempric
       const response = await fetch(
         "http://localhost:8080/products?" + queryString
       );
+      // localStorage.setItem('backendParams', JSON.stringify(response));
       const data = await response.json();
       const totalItems = await response.headers.get("X-Total-Count");
       resolve({ data: { products: data, totalItems: +totalItems } });

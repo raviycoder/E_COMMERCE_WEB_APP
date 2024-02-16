@@ -214,6 +214,9 @@ const ProductForm = () => {
                       placeholder="Enter A Product Name"
                     />
                   </div>
+                    {errors.title && (
+                  <p className="text-red-500">{errors.title.message}</p>
+                )}
                 </div>
               </div>
 
@@ -234,6 +237,9 @@ const ProductForm = () => {
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     defaultValue={""}
                   />
+                  {errors.description && (
+                  <p className="text-red-500">{errors.description.message}</p>
+                )}
                 </div>
                 <p className="mt-3 text-sm leading-6 text-gray-600">
                   Write About the Product you want to sell.
@@ -267,6 +273,9 @@ const ProductForm = () => {
                           autoComplete="given-name"
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
+                        {errors.price && (
+                  <p className="text-red-500">{errors.price.message}</p>
+                )}
                       </div>
                     </div>
 
@@ -289,6 +298,9 @@ const ProductForm = () => {
                           id="discountPercentage"
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
+                        {errors.discountPercentage && (
+                  <p className="text-red-500">{errors.discountPercentage.message}</p>
+                )}
                       </div>
                     </div>
                     <div className="sm:col-span-2">
@@ -309,6 +321,9 @@ const ProductForm = () => {
                           type="number"
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
+                        {errors.stock && (
+                  <p className="text-red-500">{errors.stock.message}</p>
+                )}
                       </div>
                     </div>
                     <div className="flex flex-row space-x-5 max-sm:flex-col max-sm:space-x-0 max-sm:space-y-3">
@@ -333,6 +348,9 @@ const ProductForm = () => {
                             ))}
                           </select>
                         </div>
+                        {errors.brand && (
+                  <p className="text-red-500">{errors.brand.message}</p>
+                )}
                       </div>
                       <div className="col-span-full">
                         <label
@@ -355,6 +373,9 @@ const ProductForm = () => {
                             ))}
                           </select>
                         </div>
+                        {errors.category && (
+                  <p className="text-red-500">{errors.category.message}</p>
+                )}
                       </div>
                     </div>
 
@@ -377,6 +398,9 @@ const ProductForm = () => {
                               value={productImages[0]}
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             />
+                            {errors.thumbnail && (
+                  <p className="text-red-500">{errors.thumbnail.message}</p>
+                )}
                           </div>
                         </div>
                       </>
@@ -394,6 +418,7 @@ const ProductForm = () => {
                             defaultValue={image} // Set the default value to the image URL
                           />
                         </div>
+                        
                       ))}
 
                     {/* <div className="sm:col-span-2">
@@ -755,6 +780,7 @@ const ProductForm = () => {
 
 function ImageUpload({ Images, params, product }) {
   const dispatch = useDispatch();
+  const [openModal, setOpenModal] = useState(false)
 
   const handleEditDelete = (index, product) => {
     const productId = { id: product.id };
@@ -832,10 +858,19 @@ function ImageUpload({ Images, params, product }) {
                     <button
                       type="button"
                       className="absolute top-7 right-1 z-10 p-2 bg-red-500 text-white hover:bg-red-700 rounded-full focus:outline-none"
-                      onClick={() => handleEditDelete(index, product)}
+                      onClick={() => setOpenModal(true)}
                     >
                       <ImCross />
                     </button>
+                  <Modal
+                        title={<div className="inline-flex gap-x-1"><p className="font-bold text-red-900">Note: </p><p>This Image delete without submitting form or submitting</p></div>}
+                        message="Are you sure you want to delete this image?"
+                        dangerOption="Delete"
+                        cancelOption="Cancel"
+                        dangerAction={(e) => handleEditDelete(index, product)}
+                        cancelAction={(e) => setOpenModal(null)}
+                        showModal={openModal}
+                      />
                   </div>
                 </li>
               ))}

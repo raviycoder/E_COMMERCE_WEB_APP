@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {fetchProductsByFilters, fetchBrands, fetchCategories, fetchProductsById, createProduct, updateProduct, fetchProductImages, deleteProductImage, deleteAllImage, deleteOneImage, SearchProducts } from './ProductAPI';
+import {fetchProductsByFilters, fetchBrands, fetchCategories, fetchProductsById, createProduct, updateProduct, fetchProductImages, deleteProductImage, deleteAllImage, deleteOneImage, SearchProducts, checkedBrands, checkedCategory } from './ProductAPI';
 
 const initialState = {
   products: [],
@@ -19,6 +19,21 @@ export const fetchBrandsAsync = createAsyncThunk(
     return response.data;
   }
 );
+export const patchBrandsAsync = createAsyncThunk(
+  'product/checkedBrands',
+  async (filter) => {
+    const response = await checkedBrands(filter);
+    return response.data;
+  }
+);
+export const patchCategoriesAsync = createAsyncThunk(
+  'product/checkedCategory',
+  async (filter) => {
+    const response = await checkedCategory(filter);
+    return response.data;
+  }
+);
+
 
 export const fetchAllProductByIdAsync = createAsyncThunk(
   'product/fetchProductsById',
@@ -216,6 +231,26 @@ export const productSlice = createSlice({
         state.selectedProducts = action.payload
       })
       .addCase(deleteOneImageAsync.rejected, (state) => {
+        state.status = 'error';
+      })
+      .addCase(patchBrandsAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(patchBrandsAsync.fulfilled, (state, action) => {
+        state.status = 'idle'
+        state.brands = action.payload
+      })
+      .addCase(patchBrandsAsync.rejected, (state) => {
+        state.status = 'error';
+      })
+      .addCase(patchCategoriesAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(patchCategoriesAsync.fulfilled, (state, action) => {
+        state.status = 'idle'
+        state.categories = action.payload
+      })
+      .addCase(patchCategoriesAsync.rejected, (state) => {
         state.status = 'error';
       });
   },
