@@ -48,6 +48,7 @@ function App() {
   const userChecked = useSelector(selectUserChecked);
 
   useEffect(() => {
+    sessionStorage.setItem('previousPage', window.location.href)
     dispatch(checkAuthAsync());
   }, [dispatch]);
   useEffect(() => {
@@ -210,5 +211,14 @@ function App() {
     </>
   );
 }
+
+window.addEventListener("beforeunload", ()=> {
+  const previousPage = sessionStorage.getItem('previousPage');
+  if(previousPage){
+    window.location.href = previousPage
+  }else{
+    window.location.href = '/products'
+  }
+})
 
 export default App;

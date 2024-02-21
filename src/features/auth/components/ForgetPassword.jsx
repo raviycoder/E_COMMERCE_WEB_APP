@@ -137,18 +137,18 @@ const ForgetPassword = () => {
   const dispatch = useDispatch();
   return (
     <>
-      {status === "loading" ? (
-        <div className="flex relative items-center justify-center h-full w-full">
-          <Circles
-            height="80"
-            width="80"
-            color="#00A9FF"
-            ariaLabel="circles-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={true}
-          />
-        </div>
+      {status === "pending" ? (
+        <div className="fixed inset-0 bg-opacity-25 bg-slate-500 flex items-center justify-center h-full w-full">
+        <Circles
+          height="80"
+          width="80"
+          color="#00A9FF"
+          ariaLabel="circles-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+      </div>
       ) :<div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img

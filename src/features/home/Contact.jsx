@@ -1,10 +1,13 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import brand from "../../assets/Com.png";
+import { Dialog, Transition } from "@headlessui/react";
 
 const Contact = () => {
   const [state, setState] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   // Replace javascript:void(0) paths with your paths
   const navigation = [
@@ -132,6 +135,10 @@ const Contact = () => {
 
   return (
     <>
+      <Modal
+        isOpen={openModal}
+        setOpenModal={setOpenModal}
+      />
       <div className="relative">
         <header>
           <div className={`md:hidden ${state ? "mx-2 pb-5" : "hidden"}`}>
@@ -215,7 +222,12 @@ const Contact = () => {
               </div>
             </div>
             <div className="flex-1 mt-12 sm:max-w-lg lg:max-w-md">
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-5">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault(), setOpenModal(true);
+                }}
+                className="space-y-5"
+              >
                 <div>
                   <label className="font-medium">Full name</label>
                   <input
@@ -258,5 +270,64 @@ const Contact = () => {
     </>
   );
 };
+function Modal({isOpen, setOpenModal}) {
+  return (
+    <div>
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={setOpenModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black/25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Oops! It&apos;s not working for now
+                  </Dialog.Title>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">
+                    This functionality will probably be made in the future
+                    </p>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={()=>setOpenModal(false)}
+                    >
+                      Ok, Thanks!
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </div>
+  )
+}
 
 export default Contact;

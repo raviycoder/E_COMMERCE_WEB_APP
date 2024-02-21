@@ -1,10 +1,10 @@
-import { createOrder, fetchAllOrders, updateOrder, checkout } from "./orderAPI";
+import { createOrder, fetchAllOrders, updateOrder, checkout, stripeCheckout, razorCheckout } from "./orderAPI";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  currentOrder: null,
   orders: [],
   status: "idle",
-  currentOrder: null,
   totalOrders: 0,
 };
 
@@ -36,6 +36,20 @@ export const checkoutAsync = createAsyncThunk(
   "order/checkout",
   async (totalAmount) => {
     const response = await checkout(totalAmount);
+    return response.data;
+  }
+);
+export const stripeCheckoutAsync = createAsyncThunk(
+  "order/stripeCheckout",
+  async (currentOrder) => {
+    const response = await stripeCheckout(currentOrder);
+    return response.data;
+  }
+);
+export const razorCheckoutAsync = createAsyncThunk(
+  "order/razorCheckout",
+  async (currentOrder) => {
+    const response = await razorCheckout(currentOrder);
     return response.data;
   }
 );
@@ -96,6 +110,28 @@ export const orderSlice = createSlice({
         state.orders[index] = action.payload;
       })
       .addCase(updateOrderAsync.rejected, (state, action) => {
+        state.status = "idle";
+        state.error = action.error;
+      })
+      .addCase(stripeCheckoutAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(stripeCheckoutAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.currentOrder = action.payload
+      })
+      .addCase(stripeCheckoutAsync.rejected, (state, action) => {
+        state.status = "idle";
+        state.error = action.error;
+      })
+      .addCase(razorCheckoutAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(razorCheckoutAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.currentOrder = action.payload
+      })
+      .addCase(razorCheckoutAsync.rejected, (state, action) => {
         state.status = "idle";
         state.error = action.error;
       });

@@ -649,24 +649,24 @@ function ProductGrid({ products }) {
   return (
     <>
       {status === "loading" ? (
-        <div className="flex relative items-center justify-center h-full w-full lg:left-[300px] ">
-          <Circles
-            height="80"
-            width="80"
-            color="#00A9FF"
-            ariaLabel="circles-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={true}
-          />
-        </div>
+        <div className="fixed z-10 inset-0 bg-opacity-25 bg-slate-500 flex items-center justify-center h-full w-full">
+        <Circles
+          height="80"
+          width="80"
+          color="#00A9FF"
+          ariaLabel="circles-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+      </div>
       ) : null}
 
       <div className="lg:col-span-3">
         <div className="bg-white">
           <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-0 lg:max-w-7xl lg:px-8">
             <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-              Customers also purchased
+              Products Lists
             </h2>
 
             <div className="mt-6 grid grid-cols-4 gap-6 md:grid-cols-8 lg:grid-cols-12">

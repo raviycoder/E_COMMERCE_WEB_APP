@@ -201,7 +201,7 @@ const handleRadioChange = () => {
   // end of filtes
   return (
     <>
-    <SearchModal isShowing={isShowing} setIsShowing={setIsShowing}/>
+   <SearchModal isShowing={isShowing} setIsShowing={setIsShowing}/>
       {/*  <!-- Component: Side navigation menu with search bar and alert message --> */}
       {/*  <!-- Mobile trigger --> */}
       <button

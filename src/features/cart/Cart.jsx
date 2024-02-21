@@ -5,6 +5,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Bounce, toast } from "react-toastify";
 import {
   deleteItemFromCartAsync,
   selectCartLoaded,
@@ -17,10 +18,11 @@ import Modal from "../common/Modal";
 
 const Cart = ({ useLink, handleOrder }) => {
   const dispatch = useDispatch();
-  const cartLoaded = useSelector(selectCartLoaded)
+  const cartLoaded = useSelector(selectCartLoaded);
   const [open, setOpen] = useState(true);
   // todo : make this discountable price
   const items = useSelector(selectItems);
+  console.log("items: " + [items])
   const [openModal, setOpenModal] = useState(null);
 
   // const totalAmount = items.reduce(
@@ -37,11 +39,13 @@ const Cart = ({ useLink, handleOrder }) => {
       amount,
     0
   );
-  console.log(items)
+  console.log(items);
 
   const totalItems = items.reduce((total, item) => item.quantity + total, 0);
 
   const status = useSelector(selectItemsStatus);
+  const numberString = Array.from({ length: items.map((item)=>Array.from(String(item.product.stock)))}, (_, index) => index + 1);
+  console.log("numberString",numberString);
 
   const handleQuntity = (e, item) => {
     dispatch(updateItemAsync({ id: item.id, quantity: +e.target.value }));
@@ -54,7 +58,7 @@ const Cart = ({ useLink, handleOrder }) => {
   return (
     <>
       {status === "loading" ? (
-        <div className="flex relative items-center justify-center h-full w-full">
+        <div className="fixed inset-0 bg-opacity-25 bg-slate-500 flex items-center justify-center h-full w-full">
           <Circles
             height="80"
             width="80"
@@ -66,7 +70,8 @@ const Cart = ({ useLink, handleOrder }) => {
           />
         </div>
       ) : null}
-      {!items.length && cartLoaded && <Navigate to="/" replace={true} />}
+      {!items.length &&
+        cartLoaded && <Navigate to="/products" replace={true} />}
       <div className="mx-auto mt-12 bg-white px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold tracking-tight text-gray-900">
           Cart
@@ -78,7 +83,11 @@ const Cart = ({ useLink, handleOrder }) => {
                 <li key={item.id} className="flex py-9">
                   <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
-                      src={item.product.thumbnail.startsWith("http")?item.product?.thumbnail:`/product-images/${item.product.thumbnail}`}
+                      src={
+                        item.product.thumbnail.startsWith("http")
+                          ? item.product?.thumbnail
+                          : `/product-images/${item.product.thumbnail}`
+                      }
                       alt={item.product?.title}
                       className="h-full w-full object-cover object-center"
                     />
@@ -87,7 +96,9 @@ const Cart = ({ useLink, handleOrder }) => {
                     <div>
                       <div className="flex justify-between text-base font-medium text-gray-900">
                         <h3>
-                          <Link to={item.product?.id}>{item.product?.title}</Link>
+                          <Link to={item.product?.id}>
+                            {item.product?.title}
+                          </Link>
                         </h3>
                         <p className="ml-4">
                           $
@@ -104,6 +115,13 @@ const Cart = ({ useLink, handleOrder }) => {
                     <div className="flex flex-1 items-end justify-between text-sm">
                       <p className="text-gray-500">
                         Qty
+                        {item.product.stock < 5 ? <select
+                          onChange={(e) => handleQuntity(e, item)}
+                          value={item.quantity}
+                          className="border  border-none rounded-md ml-2"
+                        >
+                          {Array.from({ length:item.product.stock }, (_, index) =>(<option key={index} value={index+1}>{index+1}</option>))}
+                        </select> :
                         <select
                           onChange={(e) => handleQuntity(e, item)}
                           value={item.quantity}
@@ -114,7 +132,7 @@ const Cart = ({ useLink, handleOrder }) => {
                           <option value="3">3</option>
                           <option value="4">4</option>
                           <option value="5">5</option>
-                        </select>
+                        </select>}
                       </p>
 
                       <div className="flex">
@@ -177,7 +195,7 @@ const Cart = ({ useLink, handleOrder }) => {
           <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
             <p>
               or{" "}
-              <Link to="/">
+              <Link to="/products">
                 <button
                   type="button"
                   className="for font-medium text-indigo-600 hover:text-indigo-500"

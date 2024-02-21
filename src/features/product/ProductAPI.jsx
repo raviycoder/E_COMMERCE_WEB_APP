@@ -53,6 +53,30 @@ export async function updateProduct(upadte) {
     return { error: 'Failed to update product.' };
   }
 }
+export async function updateStocks(upadtes) {
+  const apiUrl = 'http://localhost:8080/stocks-update';
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'PATCH',
+      body: JSON.stringify(upadtes),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update product.');
+    }
+
+    const updatedProduct = await response.json();
+    return { data: updatedProduct };
+  } catch (error) {
+    // Handle errors gracefully (you might want to log the error, throw a custom error, etc.)
+    console.error('Error updating Stocks:', error);
+    return { error: 'Failed to update Stocks.' };
+  }
+}
 export async function deleteProductImage(index) {
   const apiUrl = 'http://localhost:8080/products/image/';
 

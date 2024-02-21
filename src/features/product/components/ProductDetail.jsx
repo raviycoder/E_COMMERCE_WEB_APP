@@ -170,6 +170,9 @@ export default function ProductDetail() {
                         </svg>
                       </a>
                     </span>
+                    <span className="flex items-center ml-2">
+                      {product.stock > 10 ? <h2 className="font-bold text-lg text-green-500">In stock</h2> : product.stock > 0 ? <h2 className="font-bold text-lg text-orange-600">{product.stock} Stock remains</h2>: ""}
+                    </span>
                   </div>
                   <p className="leading-relaxed">{product.description}</p>
                  {(product.category === "mens-shirts" || product.category === "womens-dresses" || product.category === "tops")&& <div className="flex mt-6 items-center pb-5 border-b-2 border-gray-100 mb-5">

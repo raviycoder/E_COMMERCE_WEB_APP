@@ -202,9 +202,8 @@ const Navbar = () => {
                     className={`absolute ${
                       items.length > 0 ? "top-8" : "top-5"
                     }`}
-                  >
+                    >
                     <button
-                      disabled={items.length < 0}
                       type="button"
                       className="relative rounded-full text-gray-400 bottom-3 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                     >

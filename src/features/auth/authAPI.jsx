@@ -75,11 +75,11 @@ export function checkAuth() {
   });
 }
 
-export function signOut(userId) {
-  return new Promise(async (resolve, reject) => {
-    resolve({ data: "success" });
-  });
-}
+// export function signOut(userId) {
+//   return new Promise(async (resolve, reject) => {
+//     resolve({ data: "success" });
+//   });
+// }
 
 // export function updateUser(update) {
 //   return new Promise(async (resolve) => {
@@ -166,6 +166,23 @@ export function resetPasswordRequest(email){
       } else {
         const error = await response.text();
         reject(error);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  })
+}
+
+
+export function signOut(userId){
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await fetch('/auth/logout');
+      if(response.ok){
+        resolve({data:"success"})
+      }else{
+        const error = await response.text();
+        reject(error)
       }
     } catch (error) {
       reject(error);
