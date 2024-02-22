@@ -9,9 +9,6 @@ import {
   selectfilterAdmins,
   updateAlluserAsync,
 } from "../user/userSlice";
-import Profile from "../../uploads/403017_avatar_default_head_person_unknown_icon.png";
-import { SiConvertio } from "react-icons/si";
-import { Dialog, Transition } from "@headlessui/react";
 import AdminModal from "./components/AdminModal";
 
 const AllAdmins = () => {

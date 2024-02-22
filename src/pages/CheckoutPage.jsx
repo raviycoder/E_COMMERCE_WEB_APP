@@ -101,7 +101,7 @@ const CheckoutPage = () => {
         dispatch(razorCheckoutAsync(currentOrder))
         // try {
         //   const response = await axios.post(
-        //     "http://localhost:8080/api/create-checkout-session",
+        //     "/api/api/create-checkout-session",  // only http 👍👍
         //     { orders: currentOrder, meta: { order_id: currentOrder.id } }
         //   );
 

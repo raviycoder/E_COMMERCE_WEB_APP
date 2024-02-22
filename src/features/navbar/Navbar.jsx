@@ -108,7 +108,7 @@ const Navbar = () => {
   // Replace javascript:void(0) path with your path
   const navigation = [
     { title: "Home", to: "/", user: true },
-    { title: "Products", to: "/Products", user: true },
+    { title: "Products", to: "/products", user: true },
     { title: "About", to: "/about", user: true },
     { title: "Contact Us", to: "/contact", user: true },
   ];
@@ -132,7 +132,7 @@ const Navbar = () => {
                   {navigation.map((item, index) => (
                     <li
                       key={index}
-                      className="text-gray-600 hover:text-gray-900"
+                      className={`text-gray-600 hover:text-gray-900 ${window.location.pathname === item.to ? " bg-blue-400 text-neutral-50 rounded-md px-2 py-1":""}`}
                     >
                       <Link to={item.to}>{item.title}</Link>
                     </li>

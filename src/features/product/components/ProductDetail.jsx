@@ -116,7 +116,7 @@ export default function ProductDetail() {
     <div className="bg-white">
       {product && (
         <>
-          <section className="text-gray-600 body-font overflow-hidden">
+          <section id={product.id} className="text-gray-600 body-font overflow-hidden">
             <div className="container px-5 py-24 mx-auto">
               <div className="lg:w-4/5 mx-auto grid grid-cols-4 gap-6 md:grid-cols-8 lg:grid-cols-12">
                 <ImageCarousel product={product} />

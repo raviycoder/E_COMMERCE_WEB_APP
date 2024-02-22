@@ -62,7 +62,7 @@ export default function CheckoutForm() {
       elements,
       confirmParams: {
         // Make sure to change this to your payment completion page
-        return_url: `http://localhost:8080/order-success/${currentOrder.id}`,
+        return_url: `/api/order-success/${currentOrder.id}`,  // only http 👍👍
       },
     });
 

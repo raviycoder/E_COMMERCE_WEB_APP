@@ -3,7 +3,7 @@
 export default function fetchLoggedInUserOrders(userId) {
   return new Promise(async (resolve) => {
     const response = await fetch(
-      "http://localhost:8080/orders/user/" + userId
+      "/api/orders/user/" + userId  // only http 👍👍
     );
     const data = await response.json();
     resolve({ data });
@@ -12,7 +12,7 @@ export default function fetchLoggedInUserOrders(userId) {
 
 export function fetchLoggedInUser() {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/users/own");
+    const response = await fetch("/api/users/own");  // only http 👍👍
     const data = await response.json();
     resolve({ data });
   });
@@ -20,7 +20,7 @@ export function fetchLoggedInUser() {
 
 export function updateUser(update) {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/users/" + update.id, {
+    const response = await fetch("/api/users/" + update.id, {  // only http 👍👍
       method: "PATCH",
       body: JSON.stringify(update),
       headers: { "Content-Type": "application/json" },
@@ -31,7 +31,7 @@ export function updateUser(update) {
 }
 export function updateAllUser(AllUserUpdate) {
     return new Promise(async (resolve) => {
-      const response = await fetch("http://localhost:8080/users/", {
+      const response = await fetch("/api/users/", {  // only http 👍👍
         method: "PATCH",
         body: JSON.stringify(AllUserUpdate),
         headers: { "Content-Type": "application/json" },
@@ -43,7 +43,7 @@ export function updateAllUser(AllUserUpdate) {
 
 export function fetchUserImage() {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/users/image");
+    const response = await fetch("/api/users/image");  // only http 👍👍
     const data = await response.json();
     resolve({data});
   });
@@ -77,7 +77,7 @@ export function fetchedAllUsers(admin, role) {
 
   return new Promise(async (resolve) => {
     try {
-      const response = await fetch(`http://localhost:8080/users?${query}`);
+      const response = await fetch(`/api/users?${query}`);  // only http 👍👍
       const data = await response.json();
       resolve({ data });
     } catch (error) {

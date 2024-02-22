@@ -18,6 +18,7 @@ import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import SideNav from "../../navbar/SideNav";
 import { FaCircleArrowRight } from "react-icons/fa6";
 import { OrdersStatus } from "./ProductStatus";
+import { ImCross } from "react-icons/im";
 
 const AdminOrders = () => {
   const [page, setPage] = useState(1);
@@ -29,7 +30,7 @@ const AdminOrders = () => {
 
   const handleEdit = (order) => {
     console.log("handleEdit");
-    setEditableOrderId(order.title);
+    setEditableOrderId(order.id);
   };
   const handleShow = (e) => {
     console.log("handleShow");
@@ -60,11 +61,11 @@ const AdminOrders = () => {
     setSort(sort);
   };
 
-  const handleUpdate = ({e, order}) => {
+  const handleUpdate = (e, order) => {
     const updatedOrder = { ...order, status: e.target.value };
     console.log({ updatedOrder });
     dispatch(updateOrderAsync(updatedOrder));
-    setEditableOrderId(-1);
+    setEditableOrderId(null);
   };
   useEffect(() => {
     const pagination = { _page: page, _limit: ITEMS_PER_PAGE };
@@ -119,10 +120,10 @@ const AdminOrders = () => {
                         </th>
                         <th className="pb-3 text-start min-w-[100px]">Items</th>
                         <th className="pb-3 relative text-start min-w-[100px] max-lg:left-14">
-                            Address and Name
+                          Address and Name
                         </th>
                         <th className="pb-3 pr-12 text-start min-w-[100px] ">
-                        <button
+                          <button
                             onClick={(e) =>
                               handleSort({
                                 sort: "totalAmount",
@@ -130,14 +131,14 @@ const AdminOrders = () => {
                               })
                             }
                           >
-                          Total Amount{" "}
+                            Total Amount{" "}
                             {sort._sort === "totalAmount" &&
                               (sort._order === "asc" ? (
                                 <ArrowUpIcon className="w-4 h-4 inline"></ArrowUpIcon>
                               ) : (
                                 <ArrowDownIcon className="w-4 h-4 inline"></ArrowDownIcon>
                               ))}
-                              </button>
+                          </button>
                         </th>
                         <th className="pb-3 pr-12 text-left min-w-[50px]">
                           Status
@@ -159,11 +160,22 @@ const AdminOrders = () => {
                             <td key={index} className="py-3 pl-0 flex flex-col">
                               <div className="flex flex-row">
                                 <div className="relative inline-block shrink-0 rounded-2xl me-3">
-                                  <img
-                                    src={item.product.thumbnail}
-                                    alt={item.product.title}
-                                    className="w-[50px] h-[50px] inline-block shrink-0 rounded-2xl"
-                                  />
+                                  {item.product.thumbnail.startsWith("http") ||
+                                  item.product.thumbnail.startsWith("https") ? (
+                                    // External image
+                                    <img
+                                      src={item.product.thumbnail}
+                                      alt={item.product.title}
+                                      className="w-[50px] h-[50px] inline-block shrink-0 rounded-2xl"
+                                    />
+                                  ) : (
+                                    // Local image
+                                    <img
+                                      src={`/product-images/${item.product.thumbnail}`}
+                                      alt={item.product.title}
+                                      className="w-[50px] h-[50px] inline-block shrink-0 rounded-2xl"
+                                    />
+                                  )}
                                 </div>
                                 <div className="flex flex-col justify-start">
                                   <span className="mb-1 font-semibold transition-colors duration-200 ease-in-out text-lg/normal text-secondary-inverse hover:text-primary pr-2">
@@ -203,47 +215,48 @@ const AdminOrders = () => {
                             </span>
                           </td>
                           <td className="p-3 pl-0 relative right-3 text-start">
-                            {order.title === editableOrderId ? (
+                            {order.id === editableOrderId ? (
                               <div className="relative my-6 md:w-24">
-                              <select
-                                id="id-04"
-                                name="id-04"
-                                required
-                                className="peer relative h-10 w-full appearance-none rounded border border-slate-200 bg-white px-4 text-sm text-slate-500 outline-none transition-all autofill:bg-white focus:border-emerald-500 focus-visible:outline-none focus:focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
-                                onChange={(e) => handleUpdate({ e, order })}
-                              >
-                                <option value="" selected></option>
-                                <option value="pending" >Pending</option>
-                                <option value="dispatched">Dispatched</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="cancelled">Cancelled</option>
-                              </select>
-                              <label
-                                htmlFor="id-04"
-                                className="pointer-events-none absolute top-2.5 left-2 z-[1] px-2 text-sm text-slate-400 transition-all before:absolute before:top-0 before:left-0 before:z-[-1] before:block before:h-full before:w-full before:bg-white before:transition-all peer-required:after:text-pink-500 peer-required:after:content-['\00a0*'] peer-valid:-top-2 peer-valid:text-xs peer-focus:-top-2 peer-focus:text-xs peer-focus:text-emerald-500 peer-disabled:cursor-not-allowed peer-disabled:text-slate-400 peer-disabled:before:bg-transparent"
-                              >
-                                Select
-                              </label>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="pointer-events-none absolute top-2.5 right-2 h-5 w-5 fill-slate-400 transition-all peer-focus:fill-emerald-500 peer-disabled:cursor-not-allowed"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                                aria-labelledby="title-04 description-04"
-                                role="graphics-symbol"
-                              >
-                                <title id="title-04">Arrow Icon</title>
-                                <desc id="description-04">Arrow icon of the select list.</desc>
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
+                                <select defaultValue={order.status}
+                                  className="peer relative h-10 w-full appearance-none rounded border border-slate-200 bg-white px-4 text-sm text-slate-500 outline-none transition-all autofill:bg-white focus:border-emerald-500 focus-visible:outline-none focus:focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+                                  onChange={(e) => handleUpdate(e, order)}
+                                >
+                                  <option value="" selected></option>
+                                  <option value="pending">Pending</option>
+                                  <option value="dispatched">Dispatched</option>
+                                  <option value="delivered">Delivered</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                                <label
+                                  htmlFor="id-04"
+                                  className="pointer-events-none absolute top-2.5 left-2 z-[1] px-2 text-sm text-slate-400 transition-all before:absolute before:top-0 before:left-0 before:z-[-1] before:block before:h-full before:w-full before:bg-white before:transition-all peer-required:after:text-pink-500 peer-required:after:content-['\00a0*'] peer-valid:-top-2 peer-valid:text-xs peer-focus:-top-2 peer-focus:text-xs peer-focus:text-emerald-500 peer-disabled:cursor-not-allowed peer-disabled:text-slate-400 peer-disabled:before:bg-transparent"
+                                >
+                                  Select
+                                </label>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="pointer-events-none absolute top-2.5 right-2 h-5 w-5 fill-slate-400 transition-all peer-focus:fill-emerald-500 peer-disabled:cursor-not-allowed"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                  aria-labelledby="title-04 description-04"
+                                  role="graphics-symbol"
+                                >
+                                  <title id="title-04">Arrow Icon</title>
+                                  <desc id="description-04">
+                                    Arrow icon of the select list.
+                                  </desc>
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </div>
                             ) : (
                               <span
-                                className={`${chooseColor(order.status)} text-center align-baseline inline-flex px-2 py-1 mr-auto items-center font-semibold text-base/nonewhitespace-nowrap rounded-full text-sm capitalize`}
+                                className={`${chooseColor(
+                                  order.status
+                                )} text-center align-baseline inline-flex px-2 py-1 mr-auto items-center font-semibold text-base/nonewhitespace-nowrap rounded-full text-sm capitalize`}
                               >
                                 {" "}
                                 {order.status}
@@ -258,12 +271,17 @@ const AdminOrders = () => {
                               >
                                 <OrdersStatus order={order} />
                               </button>
-                              <button
-                                onClick={handleEdit}
+                              {order.id !== editableOrderId? <button
+                                onClick={(e)=>handleEdit(order)}
                                 className="p-2 rounded-full hover:bg-gray-300 focus:bg-gray-100"
                               >
                                 <MdEdit />
-                              </button>
+                              </button>: <button
+                                onClick={(e)=>setEditableOrderId(null)}
+                                className="p-2 rounded-full text-sm hover:bg-gray-300 focus:bg-gray-100"
+                              >
+                                <ImCross />
+                              </button>}
                             </div>
                           </td>
                         </tr>
@@ -277,7 +295,7 @@ const AdminOrders = () => {
         </div>
       </div>
       <div className=" lg:pl-72">
-        <SideNav/>
+        <SideNav />
         <Pagination
           page={page}
           setPage={setPage}

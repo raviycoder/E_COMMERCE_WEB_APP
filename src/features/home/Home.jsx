@@ -75,7 +75,7 @@ const Home = () => {
                                     {
                                         navigation.map((item, idx) => {
                                             return (
-                                                <li key={idx} className="text-gray-700 hover:text-gray-900">
+                                                <li key={idx} className={`text-gray-700 hover:text-gray-900 ${window.location.pathname === item.to ? " bg-blue-400 text-neutral-50 rounded-md px-2 py-1":""}`}>
                                                     <Link to={item.to} className="block">
                                                         {item.title}
                                                     </Link>

@@ -82,7 +82,7 @@ const ProductForm = () => {
     const formData = new FormData();
     formData.append("images", file);
     axios
-      .post("http://localhost:8080/products/upload", formData)
+      .post("/api/products/upload", formData) // only http 👍👍
       .then((response) => {
         console.log("Image uploaded:", response.data.imageUrl);
         dispatch(fetchProductImagesasync());

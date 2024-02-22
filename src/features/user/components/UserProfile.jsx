@@ -126,7 +126,7 @@ const UserProfile = () => {
     const formData = new FormData();
     formData.append("image", file);
     axios
-      .post("http://localhost:8080/users/upload", formData)
+      .post("/api/users/upload", formData)  // only http 👍👍
       .then((response) => {
         console.log("Image uploaded:", response.data.imageUrl);
 

@@ -5,7 +5,7 @@ import { Bounce, toast } from "react-toastify";
 /* eslint-disable no-async-promise-executor */
 export function createUser(userData) {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/auth/signup", {
+    const response = await fetch("/api/auth/signup", { // only http 👍👍
       method: "POST",
       body: JSON.stringify(userData),
       headers: { "Content-Type": "application/json" },
@@ -18,7 +18,7 @@ export function createUser(userData) {
 export function loginUser(loginInfo) {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch("http://localhost:8080/auth/login", {
+      const response = await fetch("/api/auth/login", { // only http 👍👍
         method: "POST",
         body: JSON.stringify(loginInfo),
         headers: { "Content-Type": "application/json" },
@@ -61,7 +61,7 @@ export function loginUser(loginInfo) {
 export function checkAuth() {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch("http://localhost:8080/auth/check");
+      const response = await fetch("/api/auth/check"); // only http 👍👍
       if (response.ok) {
         const data = await response.json();
         resolve({ data });
@@ -83,7 +83,7 @@ export function checkAuth() {
 
 // export function updateUser(update) {
 //   return new Promise(async (resolve) => {
-//     const response = await fetch("http://localhost:8080/users/"+update.id, {
+//     const response = await fetch("/api/users/"+update.id, { // only http 👍👍
 //       method: "PATCH",
 //       body: JSON.stringify(update),
 //       headers: { "Content-Type": "application/json" },
@@ -97,7 +97,7 @@ export function checkAuth() {
 export function resetPassword(data){
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch('http://localhost:8080/auth/reset-password', {
+      const response = await fetch('/api/auth/reset-password', { // only http 👍👍
         method: 'POST',
         body:JSON.stringify(data),
         headers: {'content-type':'application/json'}
@@ -141,7 +141,7 @@ export function resetPassword(data){
 export function resetPasswordRequest(email){
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch('http://localhost:8080/auth/reset-password-request', {
+      const response = await fetch('/api/auth/reset-password-request', { // only http 👍👍
         method: 'POST',
         body:JSON.stringify(email),
         headers: {'content-type':'application/json'}

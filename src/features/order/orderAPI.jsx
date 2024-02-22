@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable react-hooks/rules-of-hooks */
 // import { useSelector } from "react-redux";
 // import { selectCurrentOrder } from "./orderSlice";
@@ -6,7 +7,7 @@ import { loadStripe } from "@stripe/stripe-js";
 /* eslint-disable no-async-promise-executor */
 export function createOrder(order) {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/orders", {
+    const response = await fetch("/api/orders", {  // only http 👍👍
       method: "POST",
       body: JSON.stringify(order),
       headers: { "Content-Type": "application/json" },
@@ -19,7 +20,7 @@ export function createOrder(order) {
 
 export function updateOrder(order) {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/orders/" + order.id, {
+    const response = await fetch("/api/orders/" + order.id, {  // only http 👍👍
       method: "PATCH",
       body: JSON.stringify(order),
       headers: { "Content-Type": "application/json" },
@@ -38,7 +39,7 @@ export function fetchAllOrders(sort, pagination) {
     queryString += `${key}=${pagination[key]}&`;
   }
   return new Promise(async (resolve) => {
-    const response = await fetch("http://localhost:8080/orders?" + queryString);
+    const response = await fetch("/api/orders?" + queryString);   // only http 👍👍
     const data = await response.json();
     const totalOrders = await response.headers.get("X-Total-Count");
     resolve({ data: { orders: data, totalOrders: +totalOrders } });
@@ -48,7 +49,7 @@ export function fetchAllOrders(sort, pagination) {
 export const checkout = async () => {
   // const currentOrder = useSelector(selectCurrentOrder);
   try {
-    const res = await fetch("http://localhost:8080/stripe-checkout", {
+    const res = await fetch("/api/stripe-checkout", {  // only http 👍👍
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -67,7 +68,7 @@ export const stripeCheckout = async (currentOrder) => {
   // const currentOrder = useSelector(selectCurrentOrder)
   try {
     const response = await fetch(
-      "http://localhost:8080/api/create-checkout-session",
+      "/api/create-checkout-session",  // only http 👍👍
       {
         method: "POST",
         body: JSON.stringify({
@@ -82,7 +83,7 @@ export const stripeCheckout = async (currentOrder) => {
       // Extract JSON from the response
       const session = await response.json();
       const stripe = await loadStripe(
-        "pk_test_51OcnfMSFvOlLTXTuxD6UxqppcdyTlB9VZVytaoJUNP1xeDZQL3xbn4NbcTa3Y7QyWNo5BOMouBCUiuI8kqoOoh1k00CNGOhkju"
+        import.meta.env.VITE_STRIPE_KEY
       );
       // Use the session ID to redirect to checkout
       const result = await stripe.redirectToCheckout({
@@ -100,10 +101,33 @@ export const stripeCheckout = async (currentOrder) => {
   }
 };
 
+
+
 export const razorCheckout = async (currentOrder) => {
   // const currentOrder = useSelector(selectCurrentOrder);
+  function loadScript(src) {
+  return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+          resolve(true);
+      };
+      script.onerror = () => {
+          resolve(false);
+      };
+      document.body.appendChild(script);
+  });
+}
+  const res = await loadScript(
+    "https://checkout.razorpay.com/v1/checkout.js"
+);
+
+if (!res) {
+    alert("Razorpay SDK failed to load. Are you online?");
+    return;
+}
   try {
-    const response = await fetch("http://localhost:8080/payment/checkout", {
+    const response = await fetch("/api/payment/checkout", {  // only http 👍👍
       method: "POST",
       body: JSON.stringify({
         order:currentOrder
@@ -117,13 +141,13 @@ export const razorCheckout = async (currentOrder) => {
 console.log(result);
 const { checkout } = result
     var options = {
-      "key": "rzp_test_B5AV9WtcAetjDR", // Enter the Key ID generated from the Dashboard
+      "key": import.meta.env.VITE_RAZORPAY_KEY, // Enter the Key ID generated from the Dashboard
       "amount": currentOrder.totalAmount*100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       "currency": "USD",
       "name": currentOrder.user.name,
       "image": "https://upload.wikimedia.org/wikipedia/commons/3/33/Vanamo_Logo.png",
       "order_id": checkout.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-      "callback_url": `http://localhost:8080/payment/payment-verification`,
+      "callback_url": `/api/payment/payment-verification`,  // only http 👍👍
       "prefill": {
           "name": currentOrder.selectedAddress.name,
           "email": currentOrder.selectedAddress.email,

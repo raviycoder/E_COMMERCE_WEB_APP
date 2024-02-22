@@ -41,7 +41,6 @@ import ContactUs from "./pages/ContactUs";
 import AllAdminsPage from "./pages/AllAdminsPage";
 import DashboardPage from "./pages/DashboardPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-
 function App() {
   const dispatch = useDispatch();
   const user = useSelector(selectLoggedInUser);
@@ -59,8 +58,8 @@ function App() {
   }, [dispatch, user]);
   return (
     <>
-      {userChecked && (
         <Router>
+      {userChecked && (
           <Routes>
             <Route
               path="/checkout"
@@ -206,8 +205,8 @@ function App() {
               }
             />
           </Routes>
-        </Router>
       )}
+      </Router>
     </>
   );
 }
