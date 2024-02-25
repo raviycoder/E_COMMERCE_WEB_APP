@@ -197,9 +197,11 @@ export const OrdersStatus = ({ order }) => {
                         <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
                           Payment Status:
                         </th>
-                        <tb className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
+                       {order.paymentStatus ?<tb className={`px-6 bg-blueGray-50 ${order.paymentStatus === 'pending' ? 'text-orange-600':"text-green-500"} align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left`}>
+                          {order.paymentStatus}
+                        </tb> : <tb className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
                           Payment Status
-                        </tb>
+                        </tb>}
                       </tr>
                       <tr>
                         <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">

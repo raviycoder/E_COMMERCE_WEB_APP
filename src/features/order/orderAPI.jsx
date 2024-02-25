@@ -145,9 +145,9 @@ const { checkout } = result
       "amount": currentOrder.totalAmount*100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       "currency": "USD",
       "name": currentOrder.user.name,
-      "image": "https://upload.wikimedia.org/wikipedia/commons/3/33/Vanamo_Logo.png",
+      "image": "https://e-com-flax.vercel.app/assets/Com-tQaNTb_Z.png",
       "order_id": checkout.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-      "callback_url": `/api/payment/payment-verification`,  // only http 👍👍
+      "callback_url": `https://e-com-flax.vercel.app/api/payment/payment-verification`,  // only http 👍👍
       "prefill": {
           "name": currentOrder.selectedAddress.name,
           "email": currentOrder.selectedAddress.email,

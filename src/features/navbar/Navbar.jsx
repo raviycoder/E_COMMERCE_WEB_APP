@@ -55,7 +55,7 @@ const ProfileDropDown = (props) => {
           onClick={() => setState(!state)}
         >
           <img
-            src={`/profile-images/${userInfo.image}`}
+            src={userInfo.image}
             alt="Profile"
             className="w-full h-full rounded-full"
           />

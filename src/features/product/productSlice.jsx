@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {fetchProductsByFilters, fetchBrands, fetchCategories, fetchProductsById, createProduct, updateProduct, fetchProductImages, deleteProductImage, deleteAllImage, deleteOneImage, SearchProducts, checkedBrands, checkedCategory, updateStocks } from './ProductAPI';
+import {fetchProductsByFilters, fetchBrands, fetchCategories, fetchProductsById, createProduct, updateProduct, fetchProductImages, deleteProductImage, deleteAllImage, deleteOneImage, SearchProducts, checkedBrands, checkedCategory, updateStocks, uploadimage } from './ProductAPI';
 
 const initialState = {
   products: [],
@@ -94,6 +94,13 @@ export const deleteProductImageAsync = createAsyncThunk(
     return response.data;
   }
 );
+export const uploadImageAsync = createAsyncThunk(
+  'product/uploadimage',
+  async (images) => {
+    const response = await uploadimage(images);
+    return response.data;
+  }
+);
 export const deleteAllImageAsync = createAsyncThunk(
   'product/deleteAllImage',
   async () => {
@@ -166,6 +173,16 @@ export const productSlice = createSlice({
         state.images = action.payload;
       })
       .addCase(fetchProductImagesasync.rejected, (state) => {
+        state.status = 'error';
+      })
+      .addCase(uploadImageAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(uploadImageAsync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.images = action.payload;
+      })
+      .addCase(uploadImageAsync.rejected, (state) => {
         state.status = 'error';
       })
       .addCase(fetchCategoriesAsync.pending, (state) => {

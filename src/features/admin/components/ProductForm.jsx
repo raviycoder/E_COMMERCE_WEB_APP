@@ -20,6 +20,7 @@ import {
   selectProductImages,
   selectedProductById,
   updateProductAsync,
+  uploadImageAsync,
 } from "../../product/productSlice";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
@@ -80,13 +81,18 @@ const ProductForm = () => {
     const file = acceptedFiles[0];
     console.log("image", file);
     const formData = new FormData();
-    formData.append("images", file);
+    const {data:{timestamp, signature}} = await axios.post('/api/sign-upload', {folder:'product-images'})
+    formData.append("file", file);
+    formData.append('timestamp', timestamp);
+    formData.append('signature', signature);
+    formData.append('api_key', import.meta.env.VITE_CLY_KEY);
+    formData.append('folder', 'product-images');
     axios
-      .post("/api/products/upload", formData) // only http 👍👍
+      .post("https://api.cloudinary.com/v1_1/dccaxfmwv/image/upload", formData) // only http 👍👍
       .then((response) => {
-        console.log("Image uploaded:", response.data.imageUrl);
+        dispatch(uploadImageAsync({images:response.data.secure_url}))
         dispatch(fetchProductImagesasync());
-      });
+      }).then(()=>dispatch(fetchProductImagesasync()))
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -165,9 +171,6 @@ const ProductForm = () => {
       <form
         noValidate
         onSubmit={handleSubmit((data) => {
-          // Assuming data.images and productImages are arrays
-          // data.images = [...data.images, ...productImages];
-
           console.log(data);
           if (params.id) {
             console.log("handleupdate", handleUpdateProduct(data));
@@ -420,133 +423,50 @@ const ProductForm = () => {
                         </div>
                         
                       ))}
-
-                    {/* <div className="sm:col-span-2">
-                      <label
-                        htmlFor="region"
-                        className="block text-sm font-medium leading-6 text-gray-900"
-                      >
-                        Image 1
-                      </label>
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          {...register("image1", {
-                            required: "Image 1 is Required",
-                          })}
-                          id="image1"
-                          value={productImages[1]}
-                          autoComplete="address-level1"
-                          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="sm:col-span-2">
-                      <label
-                        htmlFor="postal-code"
-                        className="block text-sm font-medium leading-6 text-gray-900"
-                      >
-                        Image 2
-                      </label>
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          {...register("image2", {
-                            required: "Image 2 is Required",
-                          })}
-                          id="image1"
-                          value={productImages[2]}
-                          autoComplete="postal-code"
-                          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                      </div>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label
-                        htmlFor="postal-code"
-                        className="block text-sm font-medium leading-6 text-gray-900"
-                      >
-                        Image 3
-                      </label>
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          {...register("image3", {
-                            required: "Image 3 is Required",
-                          })}
-                          id="image3"
-                          value={productImages[3]}
-                          autoComplete="postal-code"
-                          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                      </div>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label
-                        htmlFor="postal-code"
-                        className="block text-sm font-medium leading-6 text-gray-900"
-                      >
-                        Image 4
-                      </label>
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          {...register("image4", {
-                            required: "Image 4 is Required",
-                          })}
-                          id="image4"
-                          value={productImages[4]}
-                          autoComplete="postal-code"
-                          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                      </div>
-                    </div> */}
                   </div>
                 </div>
               </div>
               {!params.id &&
               (productImages?.length < 5 || productImages?.error) ? (
-                <div className="col-span-full">
-                  <div className="items-center justify-center text-center">
-                    <h3 className="text-lg font-semibold">
-                      Upload Product Images
-                    </h3>
-                  </div>
-                  <label
-                    htmlFor="cover-photo"
-                    className="block text-sm font-medium leading-6 text-gray-900"
-                  >
-                    Products Images
-                  </label>
-                  <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                    <div className="text-center" {...getRootProps()}>
-                      <input
-                        id="file-upload"
-                        name="file-upload"
-                        type="file"
-                        {...getInputProps()}
-                        className="sr-only"
-                      />
-                      <PhotoIcon
-                        className="mx-auto h-12 w-12 text-gray-300"
-                        aria-hidden="true"
-                      />
-                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                        <label
-                          htmlFor="file-upload"
-                          className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                        >
-                          <span>Upload a Image</span>
-                        </label>
-                        <p className="pl-1">You Can Upload Up To 5 Images</p>
+                <>
+                  <div className="col-span-full">
+                      <div className="items-center justify-center text-center">
+                        <h3 className="text-lg font-semibold">
+                          Upload Product Images
+                        </h3>
                       </div>
-                      <p className="text-xs leading-5 text-gray-600">
-                        Your First Image Save as thumbnail Image
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                      <label
+                        htmlFor="cover-photo"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Products Images
+                      </label>
+                      <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                        <div className="text-center" {...getRootProps()}>
+                          <input
+                            id="file-upload"
+                            name="file-upload"
+                            type="file"
+                            {...getInputProps()}
+                            className="sr-only" />
+                          <PhotoIcon
+                            className="mx-auto h-12 w-12 text-gray-300"
+                            aria-hidden="true" />
+                          <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                            <label
+                              htmlFor="file-upload"
+                              className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                            >
+                              <span>Upload a Image</span>
+                            </label>
+                            <p className="pl-1">You Can Upload Up To 5 Images</p>
+                          </div>
+                          <p className="text-xs leading-5 text-gray-600">
+                            Your First Image Save as thumbnail Image
+                          </p>
+                        </div>
+                      </div>
+                    </div></>
               ) : null}
               {params.id &&
               selectedProduct?.images.length < 5 &&
@@ -819,7 +739,7 @@ function ImageUpload({ Images, params, product }) {
                     >
                       <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
                         <img
-                          src={`/product-images/${img}`}
+                          src={img}
                           alt={`image ${index}`}
                         />
                         <button
@@ -852,7 +772,7 @@ function ImageUpload({ Images, params, product }) {
                 <li className="col-span-4 lg:col-span-3 relative" key={index}>
                   <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
                     <img
-                      src={isExternalImage ? img : `/product-images/${img}`}
+                      src={img}
                       alt={`image ${index}`}
                     />
                     <button
@@ -880,7 +800,7 @@ function ImageUpload({ Images, params, product }) {
                   <li className="col-span-4 lg:col-span-3 relative" key={index}>
                     <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
                       <img
-                        src={`/product-images/${img}`}
+                        src={img}
                         alt={`image ${index}`}
                       />
                       <button

@@ -198,6 +198,18 @@ export async function checkedCategory(filter) {
   }
 }
 
+export function uploadimage(images) {
+  return new Promise(async (resolve) => {
+    const response = await fetch("/api/products/upload", {  // only http 👍👍
+      method: "post",
+      body: JSON.stringify(images),
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    resolve({ data });
+  });
+}
+
 
 export function fetchCategories() {
   return new Promise(async (resolve) => {
