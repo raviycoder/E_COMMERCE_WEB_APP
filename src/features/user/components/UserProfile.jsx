@@ -7,14 +7,10 @@ import { ImPencil } from "react-icons/im";
 import Profile from "../../../assets/403017_avatar_default_head_person_unknown_icon.png";
 import { TbTrashX } from "react-icons/tb";
 import { RxCross2 } from "react-icons/rx";
-import { Image } from "cloudinary-react";
-import Orders from "../../../assets/Orders.svg";
 import axios from "axios";
 import { IoMdAdd } from "react-icons/io";
 import { useDropzone } from "react-dropzone";
 import {
-  fetchUserImageAsync,
-  selectUserImage,
   selectUserInfo,
   selectUserStatus,
   updateUserAsync,
