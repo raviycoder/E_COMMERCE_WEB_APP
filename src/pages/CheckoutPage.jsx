@@ -18,7 +18,7 @@ import {
   stripeCheckoutAsync,
   updateOrderAsync,
 } from "../features/order/orderSlice";
-import { selectItems } from "../features/cart/cartSlice";
+import { deleteItemFromCartAsync, selectItems } from "../features/cart/cartSlice";
 import { Circles } from "react-loader-spinner";
 import { selectUserInfo, updateUserAsync } from "../features/user/userSlice";
 import { loadStripe } from "@stripe/stripe-js";
@@ -99,32 +99,6 @@ const CheckoutPage = () => {
       if (currentOrder !== null && currentOrder.paymentMethod === "razorpay card") {
         // dispatch(stripeCheckoutAsync(currentOrder))
         dispatch(razorCheckoutAsync(currentOrder))
-        // try {
-        //   const response = await axios.post(
-        //     "/api/api/create-checkout-session",  // only http 👍👍
-        //     { orders: currentOrder, meta: { order_id: currentOrder.id } }
-        //   );
-
-        //   if (response.status === 200) {
-        //     // Extract JSON from the response
-        //     const session = response.data;
-        //     const stripe = await loadStripe(
-        //       "pk_test_51OcnfMSFvOlLTXTuxD6UxqppcdyTlB9VZVytaoJUNP1xeDZQL3xbn4NbcTa3Y7QyWNo5BOMouBCUiuI8kqoOoh1k00CNGOhkju"
-        //     );
-        //     // Use the session ID to redirect to checkout
-        //     const result = await stripe.redirectToCheckout({
-        //       sessionId: session.sessionId,
-        //     });
-
-        //     if (result.error) {
-        //       console.error(result.error);
-        //     }
-        //   } else {
-        //     console.error("Error fetching session data:", response.statusText);
-        //   }
-        // } catch (error) {
-        //   console.error("Error:", error.message);
-        // }
       }
       if (currentOrder !== null && currentOrder.paymentMethod === "stripe card") {
         dispatch(stripeCheckoutAsync(currentOrder))

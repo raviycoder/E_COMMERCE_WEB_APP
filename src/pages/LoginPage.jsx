@@ -8,7 +8,7 @@ const LoginPage = () => {
   return (
     <div>
       {status === "loading" ? (
-        <div className="fixed inset-0 bg-opacity-25 bg-slate-500 flex items-center justify-center h-full w-full">
+        <div className="fixed inset-0 bg-opacity-25 z-30 bg-slate-500 flex items-center justify-center h-full w-full">
         <Circles
           height="80"
           width="80"

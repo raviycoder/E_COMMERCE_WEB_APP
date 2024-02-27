@@ -106,7 +106,7 @@ function AdminModal() {
                           <tr key={idx}>
                             <td className="flex items-center gap-x-3 py-3 px-6 whitespace-nowrap">
                               <img
-                                src={`/profile-images/${item.image}`}
+                                src={item.image}
                                 className="w-11 h-10 rounded-full"
                               />
                               <div>

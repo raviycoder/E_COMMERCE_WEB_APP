@@ -41,6 +41,7 @@ import ContactUs from "./pages/ContactUs";
 import AllAdminsPage from "./pages/AllAdminsPage";
 import DashboardPage from "./pages/DashboardPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import OrderCancelPage from "./pages/OrderCancelPage";
 function App() {
   const dispatch = useDispatch();
   const user = useSelector(selectLoggedInUser);
@@ -201,6 +202,14 @@ function App() {
               element={
                 <Protected>
                   <ResetPasswordPage />
+                </Protected>
+              }
+            />
+            <Route
+              path="/order-cancel"
+              element={
+                <Protected>
+                  <OrderCancelPage />
                 </Protected>
               }
             />

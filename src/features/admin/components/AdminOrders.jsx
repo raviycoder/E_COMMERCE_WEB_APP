@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IoCall } from "react-icons/io5";
 import {
   fetchAllOrdersAsync,
+  selectOrderStatus,
   selectOrders,
   selectTotalOrders,
   updateOrderAsync,
@@ -19,10 +20,12 @@ import SideNav from "../../navbar/SideNav";
 import { FaCircleArrowRight } from "react-icons/fa6";
 import { OrdersStatus } from "./ProductStatus";
 import { ImCross } from "react-icons/im";
+import { Circles } from "react-loader-spinner";
 
 const AdminOrders = () => {
   const [page, setPage] = useState(1);
   const dispatch = useDispatch();
+  const status = useSelector(selectOrderStatus)
   const orders = useSelector(selectOrders);
   const totalOrders = useSelector(selectTotalOrders);
   const [editableOrderId, setEditableOrderId] = useState(-1);
@@ -73,6 +76,19 @@ const AdminOrders = () => {
   }, [dispatch, page, sort]);
   return (
     <>
+    {status === "loading" ? (
+        <div className="fixed inset-0 z-30 bg-opacity-25 bg-slate-500 flex items-center justify-center h-full w-full">
+          <Circles
+            height="80"
+            width="80"
+            color="#00A9FF"
+            ariaLabel="circles-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        </div>
+      ) : null}
       <div className="flex flex-wrap -mx-3 mb-5 lg:pl-64">
         <div className="w-full max-w-full px-3 mb-6  mx-auto">
           <div className="relative flex-[1_auto] flex flex-col break-words min-w-0 bg-clip-border rounded-[.95rem] bg-white m-5">

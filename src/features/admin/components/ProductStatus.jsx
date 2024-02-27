@@ -129,28 +129,26 @@ const ProductStatus = ({ item }) => {
 };
 export const OrdersStatus = ({ order }) => {
   const time = new Date(order.createdAt);
-  console.log("physics wallah",order.createdAt)
-  const formattedDate = new Intl.DateTimeFormat('en-IN', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+  const formattedDate = new Intl.DateTimeFormat("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   }).format(time);
-  // if (order.createdAt) {
-  //   const formattedDate = new Intl.DateTimeFormat('en-IN', {
-  //     year: 'numeric',
-  //     month: 'short',
-  //     day: '2-digit',
-  //     hour: '2-digit',
-  //     minute: '2-digit',
-  //     second: '2-digit',
-  //     timeZoneName: 'short',
-  //   }).format(order.createdAt);
-  // } else {
-  //   return 'no time';
-  // }
+
+  const time2 = new Date(order.updatedAt);
+  const formattedDate2 = order.updatedAt
+    ? new Intl.DateTimeFormat("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }).format(time2)
+    : null;
   return (
     <div className="top-16 z-10 w-full max-w-sm">
       <Popover className="relative ">
@@ -197,11 +195,27 @@ export const OrdersStatus = ({ order }) => {
                         <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
                           Payment Status:
                         </th>
-                       {order.paymentStatus ?<tb className={`px-6 bg-blueGray-50 ${order.paymentStatus === 'pending' ? 'text-orange-600':"text-green-500"} align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left`}>
-                          {order.paymentStatus}
-                        </tb> : <tb className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
-                          Payment Status
-                        </tb>}
+                        {order.paymentMethod !== "cash" ? (
+                          order.paymentStatus ? (
+                            <tb
+                              className={`px-6 bg-blueGray-50 ${
+                                order.paymentStatus === "pending"
+                                  ? "text-orange-600"
+                                  : "text-green-500"
+                              } align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left`}
+                            >
+                              {order.paymentStatus}
+                            </tb>
+                          ) : (
+                            <tb className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
+                              Payment Status
+                            </tb>
+                          )
+                        ) : (
+                          <tb className="px-6 bg-blueGray-50 text-orange-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
+                            Cash on Delivery (Pending)
+                          </tb>
+                        )}
                       </tr>
                       <tr>
                         <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
@@ -225,6 +239,16 @@ export const OrdersStatus = ({ order }) => {
                         </th>
                         <tb className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left ">
                           {formattedDate}
+                        </tb>
+                      </tr>
+                      <tr>
+                        <th className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left">
+                          Order Updated At:
+                        </th>
+                        <tb className="px-6 bg-blueGray-50 text-blueGray-500 align-middle  py-3 text-sm uppercase  whitespace-nowrap font-semibold text-left ">
+                          {formattedDate2 || formattedDate !== null
+                            ? formattedDate2
+                            : "Not Available"}
                         </tb>
                       </tr>
                     </tbody>

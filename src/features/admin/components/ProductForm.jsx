@@ -17,6 +17,7 @@ import {
   fetchProductImagesasync,
   selectBrands,
   selectCategories,
+  selectImageStatus,
   selectProductImages,
   selectedProductById,
   updateProductAsync,
@@ -29,10 +30,12 @@ import { Bounce, toast } from "react-toastify";
 import { updateUserAsync } from "../../user/userSlice";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
+import { Circles } from "react-loader-spinner";
 
 const ProductForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const status = useSelector(selectImageStatus);
   const [openModal, setOpenModal] = useState(null);
   const productImages = useSelector(selectProductImages);
   const {
@@ -81,18 +84,21 @@ const ProductForm = () => {
     const file = acceptedFiles[0];
     console.log("image", file);
     const formData = new FormData();
-    const {data:{timestamp, signature}} = await axios.post('/api/sign-upload', {folder:'product-images'})
+    const {
+      data: { timestamp, signature },
+    } = await axios.post("/api/sign-upload", { folder: "product-images" });
     formData.append("file", file);
-    formData.append('timestamp', timestamp);
-    formData.append('signature', signature);
-    formData.append('api_key', import.meta.env.VITE_CLY_KEY);
-    formData.append('folder', 'product-images');
+    formData.append("timestamp", timestamp);
+    formData.append("signature", signature);
+    formData.append("api_key", import.meta.env.VITE_CLY_KEY);
+    formData.append("folder", "product-images");
     axios
       .post("https://api.cloudinary.com/v1_1/dccaxfmwv/image/upload", formData) // only http 👍👍
       .then((response) => {
-        dispatch(uploadImageAsync({images:response.data.secure_url}))
+        dispatch(uploadImageAsync({ images: response.data.secure_url }));
         dispatch(fetchProductImagesasync());
-      }).then(()=>dispatch(fetchProductImagesasync()))
+      })
+      .then(() => dispatch(fetchProductImagesasync()));
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -168,6 +174,19 @@ const ProductForm = () => {
   }, [dispatch]);
   return (
     <>
+      {status === "loading" ? (
+        <div className="fixed inset-0 bg-opacity-25 bg-slate-500 flex items-center justify-center h-full w-full">
+          <Circles
+            height="80"
+            width="80"
+            color="#00A9FF"
+            ariaLabel="circles-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        </div>
+      ) : null}
       <form
         noValidate
         onSubmit={handleSubmit((data) => {
@@ -217,9 +236,9 @@ const ProductForm = () => {
                       placeholder="Enter A Product Name"
                     />
                   </div>
-                    {errors.title && (
-                  <p className="text-red-500">{errors.title.message}</p>
-                )}
+                  {errors.title && (
+                    <p className="text-red-500">{errors.title.message}</p>
+                  )}
                 </div>
               </div>
 
@@ -241,8 +260,8 @@ const ProductForm = () => {
                     defaultValue={""}
                   />
                   {errors.description && (
-                  <p className="text-red-500">{errors.description.message}</p>
-                )}
+                    <p className="text-red-500">{errors.description.message}</p>
+                  )}
                 </div>
                 <p className="mt-3 text-sm leading-6 text-gray-600">
                   Write About the Product you want to sell.
@@ -277,8 +296,8 @@ const ProductForm = () => {
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                         {errors.price && (
-                  <p className="text-red-500">{errors.price.message}</p>
-                )}
+                          <p className="text-red-500">{errors.price.message}</p>
+                        )}
                       </div>
                     </div>
 
@@ -302,8 +321,10 @@ const ProductForm = () => {
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                         {errors.discountPercentage && (
-                  <p className="text-red-500">{errors.discountPercentage.message}</p>
-                )}
+                          <p className="text-red-500">
+                            {errors.discountPercentage.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="sm:col-span-2">
@@ -325,8 +346,8 @@ const ProductForm = () => {
                           className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                         {errors.stock && (
-                  <p className="text-red-500">{errors.stock.message}</p>
-                )}
+                          <p className="text-red-500">{errors.stock.message}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-row space-x-5 max-sm:flex-col max-sm:space-x-0 max-sm:space-y-3">
@@ -352,8 +373,8 @@ const ProductForm = () => {
                           </select>
                         </div>
                         {errors.brand && (
-                  <p className="text-red-500">{errors.brand.message}</p>
-                )}
+                          <p className="text-red-500">{errors.brand.message}</p>
+                        )}
                       </div>
                       <div className="col-span-full">
                         <label
@@ -377,8 +398,10 @@ const ProductForm = () => {
                           </select>
                         </div>
                         {errors.category && (
-                  <p className="text-red-500">{errors.category.message}</p>
-                )}
+                          <p className="text-red-500">
+                            {errors.category.message}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -402,8 +425,10 @@ const ProductForm = () => {
                               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             />
                             {errors.thumbnail && (
-                  <p className="text-red-500">{errors.thumbnail.message}</p>
-                )}
+                              <p className="text-red-500">
+                                {errors.thumbnail.message}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </>
@@ -421,7 +446,6 @@ const ProductForm = () => {
                             defaultValue={image} // Set the default value to the image URL
                           />
                         </div>
-                        
                       ))}
                   </div>
                 </div>
@@ -430,43 +454,46 @@ const ProductForm = () => {
               (productImages?.length < 5 || productImages?.error) ? (
                 <>
                   <div className="col-span-full">
-                      <div className="items-center justify-center text-center">
-                        <h3 className="text-lg font-semibold">
-                          Upload Product Images
-                        </h3>
-                      </div>
-                      <label
-                        htmlFor="cover-photo"
-                        className="block text-sm font-medium leading-6 text-gray-900"
-                      >
-                        Products Images
-                      </label>
-                      <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                        <div className="text-center" {...getRootProps()}>
-                          <input
-                            id="file-upload"
-                            name="file-upload"
-                            type="file"
-                            {...getInputProps()}
-                            className="sr-only" />
-                          <PhotoIcon
-                            className="mx-auto h-12 w-12 text-gray-300"
-                            aria-hidden="true" />
-                          <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                            <label
-                              htmlFor="file-upload"
-                              className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                            >
-                              <span>Upload a Image</span>
-                            </label>
-                            <p className="pl-1">You Can Upload Up To 5 Images</p>
-                          </div>
-                          <p className="text-xs leading-5 text-gray-600">
-                            Your First Image Save as thumbnail Image
-                          </p>
+                    <div className="items-center justify-center text-center">
+                      <h3 className="text-lg font-semibold">
+                        Upload Product Images
+                      </h3>
+                    </div>
+                    <label
+                      htmlFor="cover-photo"
+                      className="block text-sm font-medium leading-6 text-gray-900"
+                    >
+                      Products Images
+                    </label>
+                    <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                      <div className="text-center" {...getRootProps()}>
+                        <input
+                          id="file-upload"
+                          name="file-upload"
+                          type="file"
+                          {...getInputProps()}
+                          className="sr-only"
+                        />
+                        <PhotoIcon
+                          className="mx-auto h-12 w-12 text-gray-300"
+                          aria-hidden="true"
+                        />
+                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                          <label
+                            htmlFor="file-upload"
+                            className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                          >
+                            <span>Upload a Image</span>
+                          </label>
+                          <p className="pl-1">You Can Upload Up To 5 Images</p>
                         </div>
+                        <p className="text-xs leading-5 text-gray-600">
+                          Your First Image Save as thumbnail Image
+                        </p>
                       </div>
-                    </div></>
+                    </div>
+                  </div>
+                </>
               ) : null}
               {params.id &&
               selectedProduct?.images.length < 5 &&
@@ -700,7 +727,7 @@ const ProductForm = () => {
 
 function ImageUpload({ Images, params, product }) {
   const dispatch = useDispatch();
-  const [openModal, setOpenModal] = useState(false)
+  const [openModal, setOpenModal] = useState(false);
 
   const handleEditDelete = (index, product) => {
     const productId = { id: product.id };
@@ -738,10 +765,7 @@ function ImageUpload({ Images, params, product }) {
                       key={index}
                     >
                       <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
-                        <img
-                          src={img}
-                          alt={`image ${index}`}
-                        />
+                        <img src={img} alt={`image ${index}`} />
                         <button
                           type="button"
                           className="absolute top-7 right-1 z-10 p-2 bg-red-500 text-white hover:bg-red-700 rounded-full focus:outline-none"
@@ -771,10 +795,7 @@ function ImageUpload({ Images, params, product }) {
               {product?.images.map((img, index) => (
                 <li className="col-span-4 lg:col-span-3 relative" key={index}>
                   <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
-                    <img
-                      src={img}
-                      alt={`image ${index}`}
-                    />
+                    <img src={img} alt={`image ${index}`} />
                     <button
                       type="button"
                       className="absolute top-7 right-1 z-10 p-2 bg-red-500 text-white hover:bg-red-700 rounded-full focus:outline-none"
@@ -782,15 +803,23 @@ function ImageUpload({ Images, params, product }) {
                     >
                       <ImCross />
                     </button>
-                  <Modal
-                        title={<div className="inline-flex gap-x-1"><p className="font-bold text-red-900">Note: </p><p>This Image delete without submitting form or submitting</p></div>}
-                        message="Are you sure you want to delete this image?"
-                        dangerOption="Delete"
-                        cancelOption="Cancel"
-                        dangerAction={(e) => handleEditDelete(index, product)}
-                        cancelAction={(e) => setOpenModal(null)}
-                        showModal={openModal}
-                      />
+                    <Modal
+                      title={
+                        <div className="inline-flex gap-x-1">
+                          <p className="font-bold text-red-900">Note: </p>
+                          <p>
+                            This Image delete without submitting form or
+                            submitting
+                          </p>
+                        </div>
+                      }
+                      message="Are you sure you want to delete this image?"
+                      dangerOption="Delete"
+                      cancelOption="Cancel"
+                      dangerAction={(e) => handleEditDelete(index, product)}
+                      cancelAction={(e) => setOpenModal(null)}
+                      showModal={openModal}
+                    />
                   </div>
                 </li>
               ))}
@@ -799,10 +828,7 @@ function ImageUpload({ Images, params, product }) {
                 Images.map((img, index) => (
                   <li className="col-span-4 lg:col-span-3 relative" key={index}>
                     <div className="overflow-hidden bg-white rounded shadow-md text-slate-500 shadow-slate-200">
-                      <img
-                        src={img}
-                        alt={`image ${index}`}
-                      />
+                      <img src={img} alt={`image ${index}`} />
                       <button
                         type="button"
                         className="absolute top-7 right-1 z-10 p-2 bg-red-500 text-white hover:bg-red-700 rounded-full focus:outline-none"

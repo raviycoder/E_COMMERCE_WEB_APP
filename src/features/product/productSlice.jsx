@@ -297,6 +297,7 @@ export const selectAllProducts = (state) => state.product.products;
 export const selectTotalItems = (state) => state.product.totalItems;
 export const selectBrands = (state) => state.product.brands;
 export const selectCategories = (state) => state.product.categories;
+export const selectImageStatus = (state) => state.product.status;
 export const selectedProductById = (state) => state.product.selectedProducts;
 export const selectProductListStatus = (state) => state.product.status;
 export const selectProductImages = (state) => state.product.images;
